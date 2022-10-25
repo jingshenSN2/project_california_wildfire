@@ -1,0 +1,16 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Mac
+
+.DS_Store
+
+# data
+
+data/raw/shapefiles/*
+!data/raw/shapefiles/.keep
+
+data/processed/*
+!data/processed/.keep

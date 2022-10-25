@@ -1,0 +1,3 @@
+file_name,online_link,file_size_mb,crs_epsg,number_of_fields_or_layers,number_of_features_or_cells,extent_xmin,extent_xmax,extent_ymin,extent_ymax,description_of_data
+t1_2021_24_unsd.shp,https://www.census.gov/cgi-bin/geo/shapefiles/index.php?year=2021&layergroup=School+Districts,0.102,4326,14,24,-79.48765,-74.98328,37.88661,39.72304,Unified school districts shapefile for the state of Maryland
+canopy_cover.tif,https://www.mrlc.gov/viewer/,14.6,5070,1,29245800,1523445,1745565,1852125,1970625,Proportion canopy cover in greater Washington DC
