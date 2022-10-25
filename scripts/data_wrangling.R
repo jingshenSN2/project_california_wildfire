@@ -14,7 +14,7 @@ library(purrr)
 
 # Clear directory
 
-unlink("data/raw/shapefiles/*", recursive = TRUE)
+unlink("data/raw/shapefiles/[!.]*", recursive = TRUE)
 
 # Urls to download files
 
