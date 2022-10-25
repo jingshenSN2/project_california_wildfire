@@ -55,17 +55,13 @@ filenames %>%
       .x,
       exdir = gsub(pattern = "\\.zip$", "", .x)))
 
-# Remove zip files
-
-unlink("data/raw/shapefiles/*.zip", recursive = TRUE)
-
 # Special zip with nested folder, need to move to parent folder
 
 file.copy(
   from = list.files(
     "data/raw/shapefiles/cal_counties/CA_Counties",
     full.names = TRUE
-    ),
+  ),
   to = "data/raw/shapefiles/cal_counties")
 
 unlink("data/raw/shapefiles/cal_counties/CA_Counties", recursive = TRUE)
@@ -93,6 +89,12 @@ shapes %>%
       !st_is_valid(.)) %>%
       nrow())
 
+# Check crs
+
+shapes %>%
+  map(
+    ~ st_crs(.x))
+
 # Make all shapefiles valid
 
 valid_shapes <-
@@ -100,17 +102,15 @@ valid_shapes <-
   map(
     ~ st_make_valid(.x))
 
-# Check crs
+# Remove shapes
 
-valid_shapes %>%
-  map(
-    ~ st_crs(.x))
+rm(shapes)
 
 # Explore the data --------------------------------------------------------
 
 # Take a glimpse
 
-shapes %>%
+valid_shapes %>%
   walk(
     ~ glimpse(.x))
 
@@ -128,18 +128,61 @@ tm_shape(valid_shapes$state) +
   tm_shape(valid_shapes$park) +
   tm_polygons(col = "green", alpha = 0.2) +
   
-    tm_shape(valid_shapes$calfire %>%
-               mutate(year_ = as.integer(year_)) %>%
-               filter(year_ > 2010)) +
-    tm_polygons(col = "red", alpha = 0.2)
-  
+  tm_shape(valid_shapes$calfire %>%
+             mutate(year_ = as.integer(year_)) %>%
+             filter(year_ > 2010)) +
+  tm_polygons(col = "red", alpha = 0.2)
+
+
+# Metadata ----------------------------------------------------------------
+
+# We want get the following metadata of data files:
+# file_name,online_link,file_size_mb,crs_epsg,number_of_fields_or_layers,
+# number_of_features_or_cells,extent_xmin,extent_xmax,
+# extent_ymin,extent_ymax,description_of_data
+
+tibble(
+  file_name = map_chr(filenames, basename),
+  online_link = unlist(urls),
+  file_size_mb = map_chr(filenames,
+                         ~ file.size(.x) / 1e6),
+  crs_epsg = map_chr(valid_shapes,
+                     ~ st_crs(.x)$epsg),
+  number_of_fields_or_layers = map_int(valid_shapes, ncol),
+  number_of_features_or_cells = map_int(valid_shapes, nrow),
+  extent_xmin = map_dbl(valid_shapes,
+                        ~ st_bbox(.x)$xmin),
+  extent_xmax = map_dbl(valid_shapes,
+                        ~ st_bbox(.x)$xmax),
+  extent_ymin = map_dbl(valid_shapes,
+                        ~ st_bbox(.x)$ymin),
+  extent_ymax = map_dbl(valid_shapes,
+                        ~ st_bbox(.x)$ymax),
+  description_of_data = c(
+    "California fires record (as ploygons, with attributes like year, cause).",
+    "California park boundaries (as polygons).",
+    "All picnic areas (as points) in California.",
+    "All campgrounds (as points) in California.",
+    "All counties (as polygons) of California.")) %>%
+  write_csv("data/metadata.csv")
+
 # Save to geojson ---------------------------------------------------------
 
 valid_shapes %>%
   imap(
     ~ .x %>%
+      
+      # Change crs
+      
       st_transform(
         st_crs(valid_shapes$calfire)) %>%
+      
+      # Write to file
+      
       st_write(
         dsn = paste0("data/processed/", .y, ".geojson"),
         delete_dsn = TRUE))
+
+# Remove zip files
+
+unlink("data/raw/shapefiles/*.zip", recursive = TRUE)
