@@ -59,6 +59,8 @@ acs_population_2020 <-
     geometry = TRUE) %>% 
   st_make_valid()
 
+# creating map
+
 tmap_mode('view')
 
 tm_shape(acs_population_2020) + 
