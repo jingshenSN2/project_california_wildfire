@@ -6,6 +6,7 @@ library(tidycensus)
 library(tidyverse)
 library(tmap)
 library(sf)
+library(stars)
 
 
 # Request an api key from https://api.census.gov/data/key_signup.html
@@ -78,3 +79,19 @@ tm_shape(acs_population_2020) +
                   30000,
                   35000,
                   40000))
+
+acs_population_2020 %>%
+  st_rasterize(
+    .,
+    st_as_stars(
+      st_bbox(.), nx = 200, ny = 200, values = NA_real_)) %>%
+  tm_shape() +
+  tm_raster(col = 'estimate',
+            breaks = c(
+              0,
+              1000,
+              2000,
+              3000,
+              5000,
+              10000,
+              100000))
