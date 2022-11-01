@@ -95,3 +95,21 @@ acs_population_2020 %>%
               5000,
               10000,
               100000))
+
+# Save
+
+state <-
+  st_read("data/processed/state.geojson")
+
+acs_population_2020 %>%
+  
+  # Transform the CRS
+  
+  st_transform(
+    st_crs(state)) %>%
+  
+  # Write to disk
+  
+  st_write(
+    dsn = "data/processed/ca_population_tract.geojson",
+    delete_dsn = TRUE)
