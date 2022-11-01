@@ -186,3 +186,47 @@ valid_shapes %>%
 # Remove zip files
 
 unlink("data/raw/shapefiles/*.zip", recursive = TRUE)
+
+# Fire cause
+
+fire_cause <-
+  list(
+
+    # Human readable names for fire causes
+
+    cause_name = list(
+    `1` = "Lightning",
+    `2` = "Equipment Use",
+    `3` = "Smoking",
+    `4` = "Campfire",
+    `5` = "Debris",
+    `6` = "Railroad",
+    `7` = "Arson",
+    `8` = "Playing with fire",
+    `9` = "Miscellaneous",
+    `10` = "Vehicle",
+    `11` = "Powerline",
+    `12` = "Firefighter Training",
+    `13` = "Non-Firefighter Training",
+    `14` = "Unknown / Unidentified",
+    `15` = "Structure",
+    `16` = "Aircraft",
+    `17` = "",  # Not appeared in data
+    `18` = "Escaped Prescribed Burn",
+    `19` = "Illegal Alien Campfire"),
+
+    # Category of fire causes
+    # `human`: Caused by human, but vehicle/structure are not include.
+    # `natural`: Caused by natural phenomenons, like lightning.
+    # `vehicle`: Caused by vehicle, perhaps car spontaneous combustion.
+    # `structure`: Caused by static structures, like power line.
+    # `other`: Cause is not easy to classify into any categories above.
+
+    category = list(
+      human = c(2, 3, 4, 6, 7, 8, 19),
+      natural = c(1, 18),
+      vehicle = c(10, 16),
+      structure = c(11, 15),
+      other = c(5, 9, 12, 13, 14)))
+
+saveRDS(fire_cause, "data/processed/fire_cause.rds")
