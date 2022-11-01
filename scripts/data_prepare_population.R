@@ -114,7 +114,17 @@ acs_population_2010_2015 <-
     state = '06', # 06 represent CA
     survey = 'acs5',
     geometry = TRUE) %>% 
-  st_make_valid()
+  st_make_valid() %>% 
+  
+  # caculate land area 
+  
+  mutate(land_area = 
+           st_area(.) %>% 
+           units::set_units('km^2')) %>% 
+  
+  # caculate population density 
+  
+  mutate(population_density = estimate/land_area)
 
 # creating map
 
@@ -237,5 +247,18 @@ acs_population_2020 %>%
   # Write to disk
   
   st_write(
-    dsn = "data/processed/ca_population_tract.geojson",
+    dsn = "data/processed/ca_population_tract_2020.geojson",
+    delete_dsn = TRUE)
+
+acs_population_2010_2015 %>%
+  
+  # Transform the CRS
+  
+  st_transform(
+    st_crs(state)) %>%
+  
+  # Write to disk
+  
+  st_write(
+    dsn = "data/processed/ca_population_tract_2015.geojson",
     delete_dsn = TRUE)
