@@ -76,6 +76,8 @@ acs_population_2020 <-
            st_area(.) %>% 
            units::set_units('km^2')) %>% 
   
+  # caculate population density 
+  
   mutate(population_density = estimate/land_area)
 
 # county 
