@@ -1,6 +1,14 @@
 file_name,online_link,file_size_mb,crs_epsg,number_of_fields_or_layers,number_of_features_or_cells,extent_xmin,extent_xmax,extent_ymin,extent_ymax,description_of_data
-cal_fire_all.geojson,https://gis.data.cnra.ca.gov/datasets/CALFIRE-Forestry::california-fire-perimeters-all-1.geojson,321.739342,4326,19,21686,-124.40170219999997,-114.13640029999999,32.5309054,42.627075,"California fires record (as ploygons, with attributes like year, cause)."
-park_boundaries.zip,https://opendata.arcgis.com/datasets/0fea4fa1db734794bdb3b5410bb3eed9_0.zip,5.040555,4326,12,467,-124.25586129999999,-114.59069679999999,32.534683199999996,41.9940857,California park boundaries (as polygons).
-picnic_grounds.zip,https://opendata.arcgis.com/datasets/d4a0a22eb5e5486d9902ae7decde256a_0.zip,0.063011,4326,10,1039,-124.2285194,-114.61141060000001,32.5353296,41.795053100000004,All picnic areas (as points) in California.
-camp_grounds.zip,https://opendata.arcgis.com/datasets/81c47beefff143ecb6c21bfd3ed6a933_0.zip,0.041099,4326,11,516,-124.1987182,-114.61096789999998,32.6354098,41.898931,All campgrounds (as points) in California.
-cal_counties.zip,https://data.ca.gov/dataset/e212e397-1277-4df3-8c22-40721b095f33/resource/b0007416-a325-4777-9295-368ea6b710e6/download/ca-county-boundaries.zip,2.833437,3857,18,58,-13857274.72986178,-12705029.569540678,3832930.6170287207,5162403.843161839,All counties (as polygons) of California.
+cal_fire_all.geojson,https://gis.data.cnra.ca.gov/datasets/CALFIRE-Forestry::california-fire-perimeters-all-1.geojson,227.669593,4326,6,21686,-124.40170219999997,-114.1364003,32.5309054,42.627075,"California fires record (as ploygons). We select some interested attributes
+    including date, cause, burned area, etc."
+cal_counties.geojson,https://data.ca.gov/dataset/e212e397-1277-4df3-8c22-40721b095f33/resource/b0007416-a325-4777-9295-368ea6b710e6/download/ca-county-boundaries.zip,11.039582,4326,18,58,-124.48201686078049,-114.13122247508855,32.52883673637252,42.00950826967186,California county boundary shapefile.
+cal_building.tif,https://usbuildingdata.blob.core.windows.net/usbuildings-v2/California.geojson.zip,2.562766,4326,1,640000,-124.48201686078049,-114.13122247508855,32.52883673637252,42.00950826967186,"California building density (raster, unit: 1000 building/pixel). We use Microsoft's USBuildingFootPrints
+    dataset (which contains more than 11 million building polygons) to create this
+    raster data. The raw data is too large (3.3 GB), so we only report meta info
+    of this raster data."
+calveg.tif,https://data.fs.usda.gov/geodata/edw/edw_resources/fc/S_USA.EVMid_R05_CentralCoast.gdb.zip,2.562766,4326,1,640000,-124.48201686078049,-114.13122247508855,32.52883673637252,42.00950826967186,"California tree coverage area (raster). We use CalVeg dataset (which contains
+    about 300,000 polygons of vegetation classification records) to create this
+    raster data. The raw data is separated in 11 sub-regions and the total size
+    is too large(~ 3 GB), so we only report meta info of this raster data."
+cal_population_tract.geojson,https://www.census.gov/programs-surveys/acs,12.953054,4326,8,9129,-124.409591,-114.131211,32.534435,42.009485,"California population data (polygons) from Census ACS. We calculate population
+    density based on the area of polygons."
