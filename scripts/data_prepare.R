@@ -113,7 +113,87 @@ calveg_filenames %>%
       junkpaths = TRUE,
       exdir = gsub(pattern = "\\.zip$", "", .x)))
 
-# Read shape files meta info --------------------------------------------------------------
+# Exploring shape files --------------------------------------------------------------
+
+# Many of our raw datasets are so big which prevents us from
+# using purrr:map() function. We have to read, process, extract
+# meta info one-by-one to save memory.
+
+# Also, to extract meta info, we have to define a function here
+
+extract_metainfo <-
+  function(filename, url, shp, desp) {
+    bbox <- st_bbox(shp)
+    meta <- list(
+      file_name = filename,
+      online_link = url,
+      file_size_mb = file.size(filename) / 1e6,
+      crs_epsg = st_crs(shp)$epsg,
+      number_of_fields_or_layers = ncol(shp),
+      number_of_features_or_cells = nrow(shp),
+      extent_xmin = bbox$xmin,
+      extent_xmax = bbox$xmax,
+      extent_ymin = bbox$ymin,
+      extent_ymax = bbox$ymax,
+      description_of_data = desp)
+    return(meta)
+  }
+
+
+# Read cal fire data
+
+cal_fire <-
+  st_read("data/raw/shapefiles/cal_fire_all.geojson")
+
+cal_fire_meta <-
+  extract_metainfo(
+    "data/raw/shapefiles/cal_fire_all.geojson",
+    urls$calfire,
+    cal_fire,
+    "California fires record (as ploygons, with attributes like year, cause).")
+
+# Make polygon valid and save as processed data
+
+cal_fire %>%
+  st_make_valid() %>%
+  st_transform(4326) %>%
+  st_write(
+    dsn = paste0("data/processed/cal_fire_all.geojson"),
+    delete_dsn = TRUE)
+
+# Remove from memory
+rm(cal_fire)
+
+# Read ca building
+
+cal_building <-
+  st_read("data/raw/shapefiles/cal_building.geojson")
+
+cal_building_meta <-
+  extract_metainfo(
+    "data/raw/shapefiles/cal_building.geojson",
+    urls$building,
+    cal_building,
+    "California building shapefile (as ploygons). We only use it as point to calculate building density.")
+
+# Convert polygons to centroid
+
+cal_building_point <-
+  cal_building %>%
+  st_make_valid() %>%
+  st_centroid()
+
+cal_building_point %>%
+  select(-capture_dates_range) %>%
+  st_transform(4326) %>%
+  st_write(
+    dsn = paste0("data/processed/cal_building.geojson"),
+    delete_dsn = TRUE)
+  
+
+# Remove from memory
+
+rm(cal_bulding)
 
 all_filenames <-
   c("data/raw/shapefiles/cal_fire_all.geojson",
@@ -121,6 +201,21 @@ all_filenames <-
     "data/raw/shapefiles/cal_counties",
     calveg_filenames)
 
+# Meta info dataframe
+
+meta <-
+  tibble(
+    file_name = character(),
+    online_link = character(),
+    file_size_mb = character(),
+    crs_epsg = character(),
+    number_of_fields_or_layers = numeric(),
+    number_of_features_or_cells = numeric(),
+    extent_xmin = numeric(),
+    extent_xmax = numeric(),
+    extent_ymin = numeric(),
+    extent_ymax = numeric(),
+    description_of_data = character())
 shapes <-
   all_filenames %>%
   map(
