@@ -10,5 +10,7 @@ calveg.tif,https://data.fs.usda.gov/geodata/edw/edw_resources/fc/S_USA.EVMid_R05
     about 300,000 polygons of vegetation classification records) to create this
     raster data. The raw data is separated in 11 sub-regions and the total size
     is too large(~ 3 GB), so we only report meta info of this raster data."
-cal_population_tract.geojson,https://www.census.gov/programs-surveys/acs,12.953054,4326,8,9129,-124.409591,-114.131211,32.534435,42.009485,"California population data (polygons) from Census ACS. We calculate population
-    density based on the area of polygons."
+cal_population_tract_2015.geojson,https://www.census.gov/programs-surveys/acs,11.723791,4326,8,8057,-124.409591,-114.131211,32.534156,42.009518,"California population data (polygons) from Census ACS. We calculate population
+    density based on the area of polygons. Time range: 2010-2015."
+cal_population_tract_2020.geojson,https://www.census.gov/programs-surveys/acs,13.071637,4326,8,9129,-124.409591,-114.131211,32.534435,42.009485,"California population data (polygons) from Census ACS. We calculate population
+    density based on the area of polygons. Time range: 2016-2020."

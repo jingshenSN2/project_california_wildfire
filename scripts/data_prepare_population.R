@@ -234,31 +234,34 @@ tm_shape(acs_population_2010_2015) +
 
 # Save
 
-state <-
-  st_read("data/processed/state.geojson")
-
 acs_population_2020 %>%
   
   # Transform the CRS
   
-  st_transform(
-    st_crs(state)) %>%
+  st_transform(4326) %>%
   
   # Write to disk
   
   st_write(
-    dsn = "data/processed/ca_population_tract_2020.geojson",
+    dsn = "data/processed/cal_population_tract_2020.geojson",
     delete_dsn = TRUE)
 
 acs_population_2010_2015 %>%
   
   # Transform the CRS
   
-  st_transform(
-    st_crs(state)) %>%
+  st_transform(4326) %>%
   
   # Write to disk
   
   st_write(
-    dsn = "data/processed/ca_population_tract_2015.geojson",
+    dsn = "data/processed/cal_population_tract_2015.geojson",
     delete_dsn = TRUE)
+
+# Release memory
+
+rm(acs_population_2010_2015,
+   acs_population_2020,
+   acs_population_2020_county,
+   acs_population_2020_f,
+   census_vars)

@@ -84,13 +84,20 @@ cal_veg_meta <-
     about 300,000 polygons of vegetation classification records) to create this
     raster data. The raw data is separated in 11 sub-regions and the total size
     is too large(~ 3 GB), so we only report meta info of this raster data.")
-  
-cal_pop_meta <-
+
+cal_pop_2015_meta <-
   extract_metainfo(
-    "data/processed/cal_population_tract.geojson",
+    "data/processed/cal_population_tract_2015.geojson",
     "https://www.census.gov/programs-surveys/acs",
     "California population data (polygons) from Census ACS. We calculate population
-    density based on the area of polygons.")
+    density based on the area of polygons. Time range: 2010-2015.")
+
+cal_pop_2020_meta <-
+  extract_metainfo(
+    "data/processed/cal_population_tract_2020.geojson",
+    "https://www.census.gov/programs-surveys/acs",
+    "California population data (polygons) from Census ACS. We calculate population
+    density based on the area of polygons. Time range: 2016-2020.")
 
 meta_tbl <-
   bind_rows(
@@ -98,7 +105,8 @@ meta_tbl <-
     cal_counties_meta,
     cal_building_meta,
     cal_veg_meta,
-    cal_pop_meta)
+    cal_pop_2015_meta,
+    cal_pop_2020_meta)
 
 meta_tbl %>%
   write_csv("data/metadata.csv")
@@ -107,5 +115,7 @@ rm(cal_fire_meta,
    cal_counties_meta,
    cal_building_meta,
    cal_veg_meta,
-   cal_pop_meta,
-   meta_tbl)
+   cal_pop_2015_meta,
+   cal_pop_2020_meta,
+   meta_tbl,
+   extract_metainfo)
