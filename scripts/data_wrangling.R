@@ -187,7 +187,7 @@ valid_shapes %>%
 
 unlink("data/raw/shapefiles/*.zip", recursive = TRUE)
 
-# Fire cause
+# Fire cause, from https://frap.fire.ca.gov/frap-projects/fire-perimeters/
 
 fire_cause <-
   list(
@@ -211,7 +211,7 @@ fire_cause <-
     `14` = "Unknown / Unidentified",
     `15` = "Structure",
     `16` = "Aircraft",
-    `17` = "",  # Not appeared in data
+    `17` = "Volcanic",  # Not appeared in data
     `18` = "Escaped Prescribed Burn",
     `19` = "Illegal Alien Campfire"),
 
@@ -224,7 +224,7 @@ fire_cause <-
 
     category = list(
       human = c(2, 3, 4, 6, 7, 8, 19),
-      natural = c(1, 18),
+      natural = c(1, 17, 18),
       vehicle = c(10, 16),
       structure = c(11, 15),
       other = c(5, 9, 12, 13, 14)))
