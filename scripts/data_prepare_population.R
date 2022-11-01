@@ -7,6 +7,7 @@ library(tidyverse)
 library(tmap)
 library(sf)
 library(stars)
+library(units)
 
 
 # Request an api key from https://api.census.gov/data/key_signup.html
@@ -141,7 +142,17 @@ tm_shape(acs_population_2020) +
 
 summary(acs_population_2020$population_density)
 
-  tm_shape(acs_population_2020) +
+acs_population_2020 %>% 
+  ggplot() +
+  geom_sf(
+    aes(fill = 
+          as.numeric(population_density))) +
+  scale_fill_viridis_c(
+    option = 'plasma',
+    na.value = '#dcdcdc') 
+
+
+tm_shape(acs_population_2020) +
   tm_polygons(col = 'population_density',
               title = 'Population density',
               breaks = 
@@ -157,10 +168,11 @@ summary(acs_population_2020$population_density)
                   40000,
                   50000,
                   60000,
-                  70000))
+                  70000),
+              border.alpha = 0)
 
-  
-  
+
+
 # county 
 
 tm_shape(acs_population_2020_county) + 
