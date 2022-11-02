@@ -14,3 +14,7 @@ data/raw/shapefiles/*
 
 data/processed/*
 !data/processed/.keep
+
+# git archive
+
+gis_project_*.zip
