@@ -166,8 +166,8 @@ cal_fire_r <-
   select(geometry) %>%
   mutate(n = 1) %>%
   st_rasterize(cal_stars,
-             options = c("MERGE_ALG=ADD",
-                         "ALL_TOUCHED=TRUE")) %>%
+               options = c("MERGE_ALG=ADD",
+                           "ALL_TOUCHED=TRUE")) %>%
   replace(. == 0, NA)
 
 (cal_fire_r / 1000) %>%
