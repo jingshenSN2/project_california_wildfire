@@ -12,9 +12,6 @@
 data/raw/shapefiles/*
 !data/raw/shapefiles/.keep
 
-data/processed/*
-!data/processed/.keep
-
 # git archive
 
 gis_project_*.zip
