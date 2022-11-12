@@ -170,8 +170,8 @@ cal_fire_r <-
   select(geometry) %>%
   mutate(n = 1) %>%
   st_rasterize(cal_stars,
-             options = c("MERGE_ALG=ADD",
-                         "ALL_TOUCHED=TRUE")) %>%
+               options = c("MERGE_ALG=ADD",
+                           "ALL_TOUCHED=TRUE")) %>%
   replace(. == 0, NA)
 
 (cal_fire_r / 1000) %>%
@@ -249,9 +249,9 @@ rm(cal_building_r)
 cal_highway <-
   st_read("data/raw/shapefiles/cal_highway.geojson") %>%
   st_transform(4326) %>%
-  
+
   # Select interested columns
-  
+
   select(NHS_TYPE, County, City, geometry)
 
 # Save processed data
@@ -269,13 +269,13 @@ cal_highway %>%
 cal_railway <-
   st_read("data/raw/shapefiles/cal_railway.geojson") %>%
   st_transform(4326) %>%
-  
+
   # Filter in-service railway (2: Out-of-service, 3: Abandoned)
-  
+
   filter(STATUS == 1) %>%
-  
+
   # Select interested columns
-  
+
   select(geometry)
 
 # Save processed data
