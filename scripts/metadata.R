@@ -99,6 +99,18 @@ cal_pop_2020_meta <-
     "California population data (polygons) from Census ACS. We calculate population
     density based on the area of polygons. Time range: 2016-2020.")
 
+cal_highway_meta <-
+  extract_metainfo(
+    "data/processed/cal_highway.geojson",
+    "https://gisdata-caltrans.opendata.arcgis.com/datasets/1f71fa512e824ff09d4b9c3f48b6d602_0/about",
+    "California highway shapefile (linestring).")
+
+cal_railway_meta <-
+  extract_metainfo(
+    "data/processed/cal_railway.geojson",
+    "https://gisdata-caltrans.opendata.arcgis.com/datasets/2ac93358aca84aa7b547b29a42d5ff52_0/about",
+    "California railway shapefile (linestring).")
+
 meta_tbl <-
   bind_rows(
     cal_fire_meta,
@@ -106,7 +118,9 @@ meta_tbl <-
     cal_building_meta,
     cal_veg_meta,
     cal_pop_2015_meta,
-    cal_pop_2020_meta)
+    cal_pop_2020_meta,
+    cal_highway_meta,
+    cal_railway_meta)
 
 meta_tbl %>%
   write_csv("data/metadata.csv")
@@ -117,5 +131,7 @@ rm(cal_fire_meta,
    cal_veg_meta,
    cal_pop_2015_meta,
    cal_pop_2020_meta,
+   cal_highway_meta,
+   cal_railway_meta,
    meta_tbl,
    extract_metainfo)

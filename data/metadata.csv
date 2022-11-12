@@ -14,3 +14,5 @@ cal_population_tract_2015.geojson,https://www.census.gov/programs-surveys/acs,11
     density based on the area of polygons. Time range: 2010-2015."
 cal_population_tract_2020.geojson,https://www.census.gov/programs-surveys/acs,13.071637,4326,8,9129,-124.409591,-114.131211,32.534435,42.009485,"California population data (polygons) from Census ACS. We calculate population
     density based on the area of polygons. Time range: 2016-2020."
+cal_highway.geojson,https://gisdata-caltrans.opendata.arcgis.com/datasets/1f71fa512e824ff09d4b9c3f48b6d602_0/about,33.074742,4326,4,11459,-124.22484938099996,-114.48782868599994,32.544306766000034,42.00547693500005,California highway shapefile (linestring).
+cal_railway.geojson,https://gisdata-caltrans.opendata.arcgis.com/datasets/2ac93358aca84aa7b547b29a42d5ff52_0/about,3.517916,4326,1,2339,-123.80714684099996,-114.28655504599999,32.54291,42.076159449000045,California railway shapefile (linestring).

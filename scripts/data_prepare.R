@@ -24,7 +24,9 @@ urls <-
   list(
     calfire = "https://gis.data.cnra.ca.gov/datasets/CALFIRE-Forestry::california-fire-perimeters-all-1.geojson",
     building = "https://usbuildingdata.blob.core.windows.net/usbuildings-v2/California.geojson.zip",
-    county = "https://data.ca.gov/dataset/e212e397-1277-4df3-8c22-40721b095f33/resource/b0007416-a325-4777-9295-368ea6b710e6/download/ca-county-boundaries.zip")
+    county = "https://data.ca.gov/dataset/e212e397-1277-4df3-8c22-40721b095f33/resource/b0007416-a325-4777-9295-368ea6b710e6/download/ca-county-boundaries.zip",
+    highway = "https://opendata.arcgis.com/api/v3/datasets/1f71fa512e824ff09d4b9c3f48b6d602_0/downloads/data?format=geojson&spatialRefId=4326&where=1%3D1",
+    railway = "https://opendata.arcgis.com/api/v3/datasets/2ac93358aca84aa7b547b29a42d5ff52_0/downloads/data?format=geojson&spatialRefId=4326&where=1%3D1")
 
 # Filenames
 
@@ -32,7 +34,9 @@ filenames <-
   list(
     calfire = "cal_fire_all.geojson",
     building = "cal_building.zip",
-    county = "cal_counties.zip") %>%
+    county = "cal_counties.zip",
+    highway = "cal_highway.geojson",
+    railway = "cal_railway.geojson") %>%
   map(
     ~paste0("data/raw/shapefiles/", .x))
 
@@ -236,6 +240,57 @@ write_stars(cal_building_r / 1000, "data/processed/cal_building.tif")
 # Remove from memory
 
 rm(cal_building_r)
+
+
+# California Highway & Railway --------------------------------------------
+
+# Read highway data
+
+cal_highway <-
+  st_read("data/raw/shapefiles/cal_highway.geojson") %>%
+  st_transform(4326) %>%
+  
+  # Select interested columns
+  
+  select(NHS_TYPE, County, City, geometry)
+
+# Save processed data
+
+cal_highway %>%
+  set_names(
+    tolower(
+      names(.))) %>%
+  st_write(
+    dsn = paste0("data/processed/cal_highway.geojson"),
+    delete_dsn = TRUE)
+
+# Read railway data
+
+cal_railway <-
+  st_read("data/raw/shapefiles/cal_railway.geojson") %>%
+  st_transform(4326) %>%
+  
+  # Filter in-service railway (2: Out-of-service, 3: Abandoned)
+  
+  filter(STATUS == 1) %>%
+  
+  # Select interested columns
+  
+  select(geometry)
+
+# Save processed data
+
+cal_railway %>%
+  set_names(
+    tolower(
+      names(.))) %>%
+  st_write(
+    dsn = paste0("data/processed/cal_railway.geojson"),
+    delete_dsn = TRUE)
+
+# Release memory
+
+rm(cal_highway, cal_railway)
 
 
 # California Vegetation ---------------------------------------------------
