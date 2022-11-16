@@ -90,6 +90,12 @@ walk2(
   calveg_urls,
   ~ download.file(.y, .x))
 
+# Cal subregions
+
+download.file(
+  "https://data.fs.usda.gov/geodata/edw/edw_resources/fc/S_USA.EV_CalvegZones_Ecoregions.gdb.zip",
+  "data/raw/shapefiles/cal_subregion.gdb.zip")
+
 
 # Unzip files -------------------------------------------------------------
 
@@ -118,6 +124,13 @@ calveg_filenames %>%
       .x,
       junkpaths = TRUE,
       exdir = gsub(pattern = "\\.zip$", "", .x)))
+
+# Unzip cal subregion
+
+unzip(
+  "data/raw/shapefiles/cal_subregion.gdb.zip",
+  junkpaths = TRUE,
+  exdir = "data/raw/shapefiles/cal_subregion.gdb")
 
 rm(filenames, urls)
 
@@ -249,9 +262,9 @@ rm(cal_building_r)
 cal_highway <-
   st_read("data/raw/shapefiles/cal_highway.geojson") %>%
   st_transform(4326) %>%
-
+  
   # Select interested columns
-
+  
   select(NHS_TYPE, County, City, geometry)
 
 # Save processed data
@@ -269,13 +282,13 @@ cal_highway %>%
 cal_railway <-
   st_read("data/raw/shapefiles/cal_railway.geojson") %>%
   st_transform(4326) %>%
-
+  
   # Filter in-service railway (2: Out-of-service, 3: Abandoned)
-
+  
   filter(STATUS == 1) %>%
-
+  
   # Select interested columns
-
+  
   select(geometry)
 
 # Save processed data
@@ -294,6 +307,28 @@ rm(cal_highway, cal_railway)
 
 
 # California Vegetation ---------------------------------------------------
+
+cal_region <-
+  st_read("data/raw/shapefiles/cal_subregion.gdb") %>%
+  group_by(CALVEGZONE) %>%
+  summarise()
+
+cal_region %>%
+  transmute(
+    subregion_id = CALVEGZONE,
+    name = c("North Coast and Montane",
+             "North Interior",
+             "North Sierran",
+             "South Sierran",
+             "Central Valley",
+             "Central Coast and Montane",
+             "South Coast and Montane",
+             "South Interior",
+             "Great Basin"),
+    geometry = SHAPE) %>%
+  st_write(
+    dsn = "data/processed/cal_subregion.geojson",
+    delete_dsn = TRUE)
 
 calveg <-
   calveg_filenames %>%
