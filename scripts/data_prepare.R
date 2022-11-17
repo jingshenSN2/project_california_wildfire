@@ -330,6 +330,8 @@ cal_region %>%
     dsn = "data/processed/cal_subregion.geojson",
     delete_dsn = TRUE)
 
+rm(cal_region)
+
 calveg <-
   calveg_filenames %>%
   map(
