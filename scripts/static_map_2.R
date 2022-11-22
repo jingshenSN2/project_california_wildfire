@@ -17,7 +17,6 @@ shapefile_paths <-
     'data/processed',
     pattern = 'geojson$')
 
-st_read('data/processed/cal_counties.geojson')
 
 shapefile_paths %>% 
   file.path('data/processed', .) %>% 
