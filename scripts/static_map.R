@@ -11,7 +11,7 @@ library(tmap)
 
 # Read in data ------------------------------------------------------------
 
-fire <- st_read("data/processed/cal_fire_all.geojson")
+fire <- st_read("data/processed/calfire.geojson")
 fire_cause <- read_rds("data/processed/fire_cause.rds")
 county <- st_read("data/processed/cal_counties.geojson")
 pop <- st_read("data/processed/cal_population_tract_2020.geojson")
@@ -71,7 +71,22 @@ m1 <-
   tm_shape(fire_by_county) +
   tm_polygons(title = "Number of wildfires",
               col = "n",
-              style = "cont")
+              style = "cont") +
+  
+  
+  # credits
+  
+  tm_credits('Source: 2021 California Natural Resources Agency, State of California') +
+  
+  # change layout 
+  
+  tm_layout(
+    main.title = 'Number of wilderfires at county level in california',
+    frame = '#999999',
+    legend.outside = TRUE,
+    attr.outside = TRUE) 
+
+  
 
 tmap_save(m1, "output/static_maps/fire_count.png")
 
@@ -79,7 +94,12 @@ m2 <-
   tm_shape(fire_by_county) +
   tm_polygons(title = "Total burned area [acres]",
               col = "area",
-              style = "cont")
+              style = "cont") +
+  
+  tm_layout(
+    main.title = 'Burned areas at county level',
+    frame = '#999999',
+    legend.outside = TRUE)
 
 tmap_save(m2, "output/static_maps/fire_area.png")
 
