@@ -1,45 +1,8 @@
 
-# Setup -------------------------------------------------------------------
-
-library(lubridate)
-library(purrr)
-library(tidyverse)
-library(sf)
-library(stars)
-library(tmap)
-
-
 # Read in data ------------------------------------------------------------
 
-fire <- st_read("data/processed/calfire.geojson")
-fire_cause <- read_rds("data/processed/fire_cause.rds")
-county <- st_read("data/processed/cal_counties.geojson")
-pop <- st_read("data/processed/cal_population_tract_2020.geojson")
-building <- terra::rast("data/processed/cal_building.tif")
-veg <- terra::rast("data/processed/calveg.tif")
+source("scripts/source_plot_data.R")
 
-# Preprocess --------------------------------------------------------------
-
-fire_with_cause <-
-  fire %>%
-  filter(year(alarm_date) >= 1980 & year(alarm_date) <= 2023) %>%
-  mutate(
-    cause_category = case_when(
-      cause %in% fire_cause$category$human ~ "Human",
-      cause %in% fire_cause$category$natural ~ "Natural",
-      cause %in% fire_cause$category$vehicle ~ "Vehicle",
-      cause %in% fire_cause$category$structure ~ "Structure",
-      TRUE ~ "other"))
-
-fire_r <-
-  fire_with_cause %>%
-  terra::rasterize(veg,
-                   fun = length,
-                   sum = TRUE)
-
-cal_outline <-
-  county %>%
-  st_union()
 
 # Plot fire in counties ---------------------------------------------------
 
@@ -48,7 +11,7 @@ fire_by_county <-
   
   # Spatial join with county
   
-  st_join(county %>%
+  st_join(cal_counties %>%
             select(geoid)) %>%
   
   # Group by geoid
@@ -62,7 +25,9 @@ fire_by_county <-
     n = n(),
     area = sum(gis_acres)) %>%
   
-  left_join(county, ., by = 'geoid') %>%
+  left_join(cal_counties,
+            .,
+            by = 'geoid') %>%
   
   replace_na(
     list(n = 0, area = 0))
@@ -104,7 +69,7 @@ m2 <-
 tmap_save(m2, "output/static_maps/fire_area.png")
 
 m_pop <-
-  tm_shape(pop) +
+  tm_shape(cal_population_tract_2020) +
   tm_fill(title = "Population",
           col = "estimate",
           style = "cont")
@@ -116,7 +81,7 @@ tmap_save(m_pop, "output/static_maps/population.png")
 
 m3 <-
   fire_r %>%
-  terra::mask(county) %>%
+  terra::mask(cal_counties) %>%
   tm_shape() +
   tm_raster(title = "Number of wildfires",
             style = "cont") +
@@ -130,8 +95,8 @@ tmap_save(m3, "output/static_maps/fire_count_raster.png")
 
 
 m4 <-
-  veg %>%
-  terra::mask(county) %>%
+  rasters$calveg %>%
+  terra::mask(cal_counties) %>%
   tm_shape() +
   tm_raster(title = "Vegetation level",
             style = "cont",
@@ -146,8 +111,8 @@ tmap_save(m4, "output/static_maps/veg_raster.png")
 
 
 m5 <-
-  building %>%
-  terra::mask(county) %>%
+  rasters$cal_building %>%
+  terra::mask(cal_counties) %>%
   tm_shape() +
   tm_raster(title = "Building density",
             style = "cont",
