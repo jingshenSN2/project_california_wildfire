@@ -68,7 +68,7 @@ fire_with_cause <-
       cause %in% fire_cause$category$natural ~ "Natural",
       cause %in% fire_cause$category$vehicle ~ "Vehicle",
       cause %in% fire_cause$category$structure ~ "Structure",
-      TRUE ~ "other")) %>%
+      TRUE ~ "Other")) %>%
   select(
     -c(cause, objective))
 
