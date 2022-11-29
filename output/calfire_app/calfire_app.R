@@ -11,6 +11,9 @@ library(tidyverse)
 
 # Read in data ------------------------------------------------------------
 
+fire_dfr <-
+  read_csv("data/fire.csv")
+
 shapefile_paths <-
   list.files(
     "data",
@@ -48,6 +51,7 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("Introduction", tabName = "intro", icon = icon("clipboard")),
       menuItem("Wildfire Summary", tabName = "fire_summary", icon = icon("table")),
+      menuItem("Large Wildfires", tabName = "large_fire", icon = icon("fire")),
       menuItem("Vegetation", tabName = "veg", icon = icon("tree")),
       menuItem("Road", tabName = "road", icon = icon("road")),
       menuItem("Population", tabName = "pop", icon = icon("users")),
@@ -91,8 +95,18 @@ ui <- dashboardPage(
       tabItem(
         tabName = "fire_summary",
         h2("Wildfire Summary Table"),
-        p("Here is a statistical table of wildfire burned area grouped by alarm date year. The acreage is in acres."),
+        p("Here is a statistical table of wildfire burned area grouped 
+          by alarm date year. The acreage is in acres."),
         dataTableOutput("summary")
+      ),
+      tabItem(
+        tabName = "large_fire",
+        h2("Large Wildfire on Map"),
+        p("Here are the perimeters of wildfires that burned an area greater than 5,000 acres. 
+          When the fire perimeter overlaps with more than one subregion, 
+          it will be classified into the subregion with the largest overlap area.
+          Map may take some time to display."),
+        tmapOutput("large_fire")
       ),
       tabItem(
         tabName = "veg",
@@ -125,23 +139,30 @@ server <- function(input, output) {
         filter(subregion_id == input$subregion | input$subregion == 0)
     })
   
-  fire <-
+  large_fire <-
     reactive({
-      shapefiles$fire %>%
+      shapefiles$large_fire %>%
         filter(
           between(
             as_date(alarm_date),
             input$date[1],
             input$date[2]),
-          cause_category %in% input$causes) %>%
-        st_filter(subregion())
+          cause_category %in% input$causes,
+          (input$subregion == 0 |
+             subregion_id == input$subregion))
     })
   
   fire_summary <-
     reactive({
-      fire() %>%
-        as_tibble() %>%
-        select(-geometry) %>%
+      fire_dfr %>%
+        filter(
+          between(
+            as_date(alarm_date),
+            input$date[1],
+            input$date[2]),
+          cause_category %in% input$causes,
+          (input$subregion == 0 |
+             subregion_id == input$subregion)) %>%
         group_by(
           Year = year(alarm_date)) %>%
         summarise(`Count` = n(),
@@ -154,6 +175,22 @@ server <- function(input, output) {
   output$summary <-
     renderDataTable({
       fire_summary()
+    })
+  
+  output$large_fire <-
+    renderTmap({
+      subregion() %>%
+        tm_shape(name = "Region Boundary") +
+        tm_borders(lty = "longdash") +
+        large_fire() %>%
+        tm_shape(name = "Fire Perimeter") +
+        tm_polygons(title = "Cause",
+                    col = "cause_category",
+                    popup.vars = c("Alarm Date" = "alarm_date",
+                                   "Containment Date" = "cont_date",
+                                   "Burned Area [acres]" = "gis_acres",
+                                   "Cause Category" = "cause_category",
+                                   "Cause" = "cause_name"))
     })
 }
 
