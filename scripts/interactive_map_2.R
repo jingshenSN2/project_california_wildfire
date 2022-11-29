@@ -72,7 +72,7 @@ fire_with_cause %>%
                 10000,
                 100000),
               border.alpha = 0,
-              alpha = 0.6) 
+              alpha = 0.6) +
   
   pop %>% 
   filter(year == 2020) %>% 
@@ -88,8 +88,16 @@ fire_with_cause %>%
                 10000,
                 100000),
               border.alpha = 0,
-              alpha = 0.6) 
+              alpha = 0.6) + 
   
+  road %>% 
+  tm_shape(name = 'Highway and railways') +
+  tm_lines(col = 'type',
+           title.col = 'Road type')
+
+
+
+
 
 
 
