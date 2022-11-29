@@ -12,7 +12,8 @@ road <-
       transmute(type = "highway"),
     cal_railway %>%
       transmute(type = "railway")) %>%
-  st_zm()
+  group_by(type) %>%
+  summarise()
 
 pop <-
   bind_rows(
@@ -33,19 +34,42 @@ pop <-
 
 # Make subregion smaller
 
-cal_counties %>%
-  select(geometry) %>%
-  st_join(cal_subregion) %>%
-  group_by(subregion_id, name) %>%
-  summarise() %>%
-  rename(subregion_name = name) %>%
+subregion <-
+  cal_subregion %>%
+  st_simplify(dTolerance = 1000)
+
+subregion %>%
   st_write("output/calfire_app/data/subregion.geojson", delete_dsn = TRUE)
 
 cal_outline %>%
   st_write("output/calfire_app/data/outline.geojson", delete_dsn = TRUE)
 
+# Fire with subregion
+
+fire_with_subregion <-
+  fire_with_cause %>%
+  st_join(subregion, largest=TRUE)
+
+fire_with_subregion %>%
+  as_tibble() %>%
+  
+  # Since we joined data with subregion, we can use it in our app
+  # without geometry
+  
+  select(-geometry) %>%
+  arrange(alarm_date) %>%
+  write_csv("output/calfire_app/data/fire.csv")
+
+# Only fire larger than 5000 acres
+
+large_fire <-
+  fire_with_subregion %>%
+  filter(gis_acres >= 5000)
+
+# Save shapefiles
+
 list(
-  fire = fire_with_cause,
+  large_fire = large_fire,
   road = road,
   pop = pop) %>%
   iwalk(
