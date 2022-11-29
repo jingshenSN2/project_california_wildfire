@@ -10,7 +10,7 @@ road <-
   bind_rows(
     cal_highway %>%
       transmute(type = "highway"),
-    cal_highway %>%
+    cal_railway %>%
       transmute(type = "railway"))
 
 pop <-
