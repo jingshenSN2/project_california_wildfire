@@ -97,6 +97,11 @@ ui <- dashboardPage(
         h2("Wildfire Summary Table"),
         p("Here is a statistical table of wildfire burned area grouped 
           by alarm date year. The acreage is in acres."),
+        radioButtons(
+          "summary_by",
+          "Summary By",
+          c("Year", "Subregion")
+        ),
         dataTableOutput("summary")
       ),
       tabItem(
@@ -152,7 +157,7 @@ server <- function(input, output) {
              subregion_id == input$subregion))
     })
   
-  fire_summary <-
+  fire_dfr_filtered <-
     reactive({
       fire_dfr %>%
         filter(
@@ -160,11 +165,23 @@ server <- function(input, output) {
             as_date(alarm_date),
             input$date[1],
             input$date[2]),
-          cause_category %in% input$causes,
-          (input$subregion == 0 |
-             subregion_id == input$subregion)) %>%
-        group_by(
-          Year = year(alarm_date)) %>%
+          cause_category %in% input$causes)
+    })
+  
+  fire_summary <-
+    reactive({
+      if (input$summary_by == "Year") {
+        grouped <-
+          fire_dfr_filtered() %>%
+          filter(input$subregion == 0 |
+                   subregion_id == input$subregion) %>%
+          group_by(Year = year(alarm_date))
+      } else {
+        grouped <-
+          fire_dfr_filtered() %>%
+          group_by(Subregion = subregion_name)
+      }
+      grouped %>%
         summarise(`Count` = n(),
                   `Min Area` = round(min(gis_acres), 1),
                   `Avg Area` = round(mean(gis_acres), 1),

@@ -6,14 +6,22 @@ source("scripts/source_plot_data.R")
 
 # Wrangling & Save --------------------------------------------------------
 
+# Make subregion smaller
+
+subregion <-
+  cal_subregion %>%
+  rename(subregion_name = name) %>%
+  st_simplify(dTolerance = 1000)
+
 road <-
   bind_rows(
     cal_highway %>%
       transmute(type = "highway"),
     cal_railway %>%
       transmute(type = "railway")) %>%
-  group_by(type) %>%
-  summarise()
+  group_by(type) %>% summarise() %>%
+  st_simplify(dTolerance = 100) %>% 
+  st_intersection(subregion)
 
 pop <-
   bind_rows(
@@ -28,15 +36,11 @@ pop <-
                 land_area,
                 population_density)) %>%
   
-  # Remove empty polygons (Why do they exist?)
+  # Remove empty polygons
   
-  filter(!st_is_empty(.))
-
-# Make subregion smaller
-
-subregion <-
-  cal_subregion %>%
-  st_simplify(dTolerance = 1000)
+  filter(!st_is_empty(.)) %>%
+  st_simplify(dTolerance = 100) %>%
+  st_intersection(subregion)
 
 subregion %>%
   st_write("output/calfire_app/data/subregion.geojson", delete_dsn = TRUE)
@@ -48,7 +52,12 @@ cal_outline %>%
 
 fire_with_subregion <-
   fire_with_cause %>%
-  st_join(subregion, largest=TRUE)
+  
+  # With largest=TRUE, this line can take 5+ min to run
+  
+  st_join(subregion,
+          left = FALSE,
+          largest=TRUE)
 
 fire_with_subregion %>%
   as_tibble() %>%
@@ -64,7 +73,8 @@ fire_with_subregion %>%
 
 large_fire <-
   fire_with_subregion %>%
-  filter(gis_acres >= 5000)
+  filter(gis_acres >= 5000) %>%
+  st_simplify(dTolerance = 100)
 
 # Save shapefiles
 

@@ -1,4 +1,4 @@
-alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
+alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,subregion_name
 1980-01-03T00:00:00Z,NA,5.6326604,Unknown / Unidentified,Other,7,South Coast and Montane
 1980-02-06T00:00:00Z,NA,76.976036,Unknown / Unidentified,Other,7,South Coast and Montane
 1980-03-18T00:00:00Z,NA,589.33405,Unknown / Unidentified,Other,7,South Coast and Montane
@@ -1631,7 +1631,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 1988-07-03T00:00:00Z,NA,110.894,Unknown / Unidentified,Other,1,North Coast and Montane
 1988-07-04T00:00:00Z,1988-07-05T00:00:00Z,665.8233,Smoking,Human,5,Central Valley
 1988-07-04T00:00:00Z,1988-07-05T00:00:00Z,26.730495,Campfire,Human,4,South Sierran
-1988-07-04T00:00:00Z,1988-07-04T00:00:00Z,0.97154814,Miscellaneous,Other,NA,NA
 1988-07-05T00:00:00Z,NA,69.930893,Unknown / Unidentified,Other,7,South Coast and Montane
 1988-07-05T00:00:00Z,NA,55.410049,Unknown / Unidentified,Other,7,South Coast and Montane
 1988-07-06T00:00:00Z,NA,83.904045,Miscellaneous,Other,7,South Coast and Montane
@@ -2458,7 +2457,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 1994-06-04T00:00:00Z,1994-06-07T00:00:00Z,403.19189,Campfire,Human,5,Central Valley
 1994-06-11T00:00:00Z,NA,1131.5114,Railroad,Human,5,Central Valley
 1994-06-12T00:00:00Z,NA,1012.4094,Equipment Use,Human,6,Central Coast and Montane
-1994-06-12T00:00:00Z,1994-06-12T00:00:00Z,0.48471752,Equipment Use,Human,NA,NA
 1994-06-14T00:00:00Z,NA,2436.9685,Debris,Other,5,Central Valley
 1994-06-16T00:00:00Z,NA,2.1811271,Unknown / Unidentified,Other,7,South Coast and Montane
 1994-06-17T00:00:00Z,1994-06-19T00:00:00Z,704.30676,Lightning,Natural,4,South Sierran
@@ -2590,7 +2588,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 1994-08-19T00:00:00Z,1994-08-20T00:00:00Z,34.761127,Miscellaneous,Other,5,Central Valley
 1994-08-21T00:00:00Z,1994-08-23T00:00:00Z,160.11453,Miscellaneous,Other,7,South Coast and Montane
 1994-08-21T00:00:00Z,1994-08-23T00:00:00Z,1843.6573,Arson,Human,7,South Coast and Montane
-1994-08-21T00:00:00Z,1994-08-23T00:00:00Z,4.0197215,Equipment Use,Human,NA,NA
 1994-08-24T00:00:00Z,NA,301.29041,Unknown / Unidentified,Other,5,Central Valley
 1994-08-24T00:00:00Z,1994-08-24T00:00:00Z,29.166519,Equipment Use,Human,5,Central Valley
 1994-08-24T00:00:00Z,1994-09-02T00:00:00Z,5702.8472,Miscellaneous,Other,4,South Sierran
@@ -3151,7 +3148,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 1997-07-01T00:00:00Z,1997-07-02T00:00:00Z,73.424896,Miscellaneous,Other,7,South Coast and Montane
 1997-07-01T00:00:00Z,NA,3825.1714,Unknown / Unidentified,Other,7,South Coast and Montane
 1997-07-02T00:00:00Z,NA,158.95779,Unknown / Unidentified,Other,7,South Coast and Montane
-1997-07-03T00:00:00Z,NA,1793.7991,Unknown / Unidentified,Other,NA,NA
 1997-07-03T00:00:00Z,NA,41.957676,Equipment Use,Human,7,South Coast and Montane
 1997-07-03T00:00:00Z,NA,130.34036,Unknown / Unidentified,Other,7,South Coast and Montane
 1997-07-03T00:00:00Z,NA,459.16824,Unknown / Unidentified,Other,7,South Coast and Montane
@@ -3716,7 +3712,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 2000-07-02T00:00:00Z,NA,2591.9219,Miscellaneous,Other,5,Central Valley
 2000-07-03T00:00:00Z,2000-07-06T00:00:00Z,35.514389,Miscellaneous,Other,4,South Sierran
 2000-07-03T00:00:00Z,2000-07-03T00:00:00Z,74.259865,Equipment Use,Human,5,Central Valley
-2000-07-04T00:00:00Z,NA,18.437744,Playing with fire,Human,NA,NA
 2000-07-05T00:00:00Z,2000-07-05T00:00:00Z,6.984602,Miscellaneous,Other,7,South Coast and Montane
 2000-07-07T00:00:00Z,NA,168.0016,Debris,Other,5,Central Valley
 2000-07-07T00:00:00Z,2000-07-07T00:00:00Z,0.21094343,Playing with fire,Human,7,South Coast and Montane
@@ -4831,7 +4826,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 2004-08-14T00:00:00Z,2004-08-14T00:00:00Z,119.4651,Arson,Human,1,North Coast and Montane
 2004-08-14T00:00:00Z,2004-08-16T00:00:00Z,12675.351,Unknown / Unidentified,Other,1,North Coast and Montane
 2004-08-16T00:00:00Z,2004-08-16T00:00:00Z,4.0004172,Illegal Alien Campfire,Human,7,South Coast and Montane
-2004-08-16T00:00:00Z,2004-08-16T00:00:00Z,22.169182,Equipment Use,Human,NA,NA
 2004-08-17T00:00:00Z,2004-08-17T00:00:00Z,0.24448138,Unknown / Unidentified,Other,7,South Coast and Montane
 2004-08-18T00:00:00Z,2004-08-19T00:00:00Z,72.497177,Vehicle,Vehicle,5,Central Valley
 2004-08-18T00:00:00Z,2004-08-18T00:00:00Z,3.1299255,Unknown / Unidentified,Other,7,South Coast and Montane
@@ -4907,7 +4901,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 2005-04-09T00:00:00Z,2005-04-09T00:00:00Z,12.995436,Unknown / Unidentified,Other,7,South Coast and Montane
 2005-04-20T00:00:00Z,2005-04-20T00:00:00Z,19.574554,Equipment Use,Human,7,South Coast and Montane
 2005-05-04T00:00:00Z,2005-05-04T00:00:00Z,20.010059,Arson,Human,7,South Coast and Montane
-2005-05-04T00:00:00Z,2005-05-04T00:00:00Z,0.46614757,Illegal Alien Campfire,Human,NA,NA
 2005-05-14T00:00:00Z,2005-05-14T00:00:00Z,19.511711,Equipment Use,Human,6,Central Coast and Montane
 2005-05-15T00:00:00Z,2005-05-15T00:00:00Z,34.672874,Illegal Alien Campfire,Human,7,South Coast and Montane
 2005-05-17T00:00:00Z,2005-05-18T00:00:00Z,667.12268,Campfire,Human,6,Central Coast and Montane
@@ -5098,7 +5091,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 2005-08-18T00:00:00Z,2005-08-18T00:00:00Z,141.1954,Unknown / Unidentified,Other,6,Central Coast and Montane
 2005-08-19T00:00:00Z,2005-08-19T00:00:00Z,37.729378,Equipment Use,Human,6,Central Coast and Montane
 2005-08-20T00:00:00Z,2005-08-20T00:00:00Z,11.703507,Campfire,Human,7,South Coast and Montane
-2005-08-21T00:00:00Z,2005-08-22T00:00:00Z,10.074274,Lightning,Natural,NA,NA
 2005-08-21T00:00:00Z,2005-08-21T00:00:00Z,153.71992,Equipment Use,Human,1,North Coast and Montane
 2005-08-22T00:00:00Z,2005-09-09T00:00:00Z,24410.217,Lightning,Natural,9,Great Basin
 2005-08-23T00:00:00Z,2005-08-24T00:00:00Z,69.65049,Lightning,Natural,5,Central Valley
@@ -6184,7 +6176,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 2008-07-16T00:00:00Z,2008-07-16T00:00:00Z,0.29845303,Aircraft,Vehicle,7,South Coast and Montane
 2008-07-18T00:00:00Z,2008-07-18T00:00:00Z,80.084793,Unknown / Unidentified,Other,5,Central Valley
 2008-07-19T00:00:00Z,2008-12-01T00:00:00Z,11648.092,Lightning,Natural,4,South Sierran
-2008-07-21T00:00:00Z,2008-07-21T00:00:00Z,17.4046,Lightning,Natural,NA,NA
 2008-07-21T00:00:00Z,2008-07-22T00:00:00Z,766.04382,Vehicle,Vehicle,6,Central Coast and Montane
 2008-07-22T00:00:00Z,2008-07-22T00:00:00Z,17.057304,Equipment Use,Human,6,Central Coast and Montane
 2008-07-22T00:00:00Z,NA,101.07415,Unknown / Unidentified,Other,5,Central Valley
@@ -6398,7 +6389,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 2009-07-05T00:00:00Z,2009-07-05T00:00:00Z,70.4869,Unknown / Unidentified,Other,5,Central Valley
 2009-07-05T00:00:00Z,2009-07-25T00:00:00Z,10.356378,Unknown / Unidentified,Other,5,Central Valley
 2009-07-05T00:00:00Z,2009-07-05T00:00:00Z,3.3547523,Miscellaneous,Other,1,North Coast and Montane
-2009-07-06T00:00:00Z,2009-07-21T00:00:00Z,330.16028,Unknown / Unidentified,Other,NA,NA
 2009-07-06T00:00:00Z,2009-07-06T00:00:00Z,208.32185,Unknown / Unidentified,Other,4,South Sierran
 2009-07-07T00:00:00Z,2009-07-07T00:00:00Z,348.35818,Miscellaneous,Other,7,South Coast and Montane
 2009-07-07T00:00:00Z,2009-07-07T00:00:00Z,0.82820851,Vehicle,Vehicle,6,Central Coast and Montane
@@ -6744,7 +6734,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 2010-09-16T00:00:00Z,2010-09-16T00:00:00Z,11.202706,Vehicle,Vehicle,7,South Coast and Montane
 2010-09-18T00:00:00Z,2010-09-18T00:00:00Z,90.495522,Unknown / Unidentified,Other,3,North Sierran
 2010-09-18T00:00:00Z,2010-09-19T00:00:00Z,203.81558,Equipment Use,Human,5,Central Valley
-2010-09-19T00:00:00Z,2010-09-19T00:00:00Z,143.69591,Unknown / Unidentified,Other,NA,NA
 2010-09-23T00:00:00Z,2010-09-23T00:00:00Z,38.378384,Equipment Use,Human,7,South Coast and Montane
 2010-09-28T00:00:00Z,2010-09-28T00:00:00Z,41.612827,Unknown / Unidentified,Other,7,South Coast and Montane
 2010-09-30T00:00:00Z,2010-10-12T00:00:00Z,6.1009812,Unknown / Unidentified,Other,4,South Sierran
@@ -7120,7 +7109,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 2012-05-16T00:00:00Z,2012-05-16T00:00:00Z,0.71495622,Unknown / Unidentified,Other,5,Central Valley
 2012-05-16T00:00:00Z,2012-05-18T00:00:00Z,61.559731,Unknown / Unidentified,Other,7,South Coast and Montane
 2012-05-17T00:00:00Z,2012-05-17T00:00:00Z,3.3817003,Unknown / Unidentified,Other,8,South Interior
-2012-05-17T00:00:00Z,2012-05-19T00:00:00Z,11.372368,Unknown / Unidentified,Other,NA,NA
 2012-05-18T00:00:00Z,2012-05-18T00:00:00Z,56.17696,Unknown / Unidentified,Other,7,South Coast and Montane
 2012-05-19T00:00:00Z,2012-05-21T00:00:00Z,13.274634,Debris,Other,1,North Coast and Montane
 2012-05-20T00:00:00Z,NA,7.48768,Equipment Use,Human,8,South Interior
@@ -8618,7 +8606,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 2016-11-13T00:00:00Z,2016-11-13T00:00:00Z,55.278599,Vehicle,Vehicle,7,South Coast and Montane
 2016-11-14T00:00:00Z,2016-11-14T00:00:00Z,41.847244,Equipment Use,Human,7,South Coast and Montane
 2016-11-19T00:00:00Z,2016-11-19T00:00:00Z,4.4466839,Vehicle,Vehicle,7,South Coast and Montane
-2016-12-02T00:00:00Z,2016-12-02T00:00:00Z,1.1673875,Unknown / Unidentified,Other,NA,NA
 2016-12-20T00:00:00Z,2016-12-21T00:00:00Z,40.238644,Equipment Use,Human,7,South Coast and Montane
 2016-12-29T00:00:00Z,2016-12-29T00:00:00Z,4.7989841,Unknown / Unidentified,Other,7,South Coast and Montane
 2017-01-30T00:00:00Z,2017-01-30T00:00:00Z,0.0038967256,Unknown / Unidentified,Other,7,South Coast and Montane
@@ -9346,7 +9333,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 2018-06-14T00:00:00Z,2018-06-14T00:00:00Z,56.454029,Vehicle,Vehicle,6,Central Coast and Montane
 2018-06-15T00:00:00Z,2018-06-15T00:00:00Z,4564.0947,Equipment Use,Human,5,Central Valley
 2018-06-15T00:00:00Z,2018-06-16T00:00:00Z,52.851002,Equipment Use,Human,5,Central Valley
-2018-06-16T00:00:00Z,2018-06-16T00:00:00Z,0.88025987000000006,Unknown / Unidentified,Other,NA,NA
 2018-06-16T00:00:00Z,2018-06-14T00:00:00Z,1.7123965,Unknown / Unidentified,Other,7,South Coast and Montane
 2018-06-18T00:00:00Z,2018-06-19T00:00:00Z,10.564122,Unknown / Unidentified,Other,5,Central Valley
 2018-06-18T00:00:00Z,2018-06-20T00:00:00Z,124.79753,Unknown / Unidentified,Other,5,Central Valley
@@ -10435,7 +10421,6 @@ alarm_date,cont_date,gis_acres,cause_name,cause_category,subregion_id,name
 2020-11-23T00:00:00Z,2020-11-23T00:00:00Z,13.633389,Unknown / Unidentified,Other,6,Central Coast and Montane
 2020-11-23T00:00:00Z,2020-11-23T00:00:00Z,1.0429176,Debris,Other,1,North Coast and Montane
 2020-11-27T19:38:00Z,2020-12-01T12:00:00Z,7.514976,Campfire,Human,7,South Coast and Montane
-2020-11-29T00:00:00Z,2020-12-01T00:00:00Z,12.152788,Equipment Use,Human,NA,NA
 2020-12-01T00:00:00Z,2020-12-13T00:00:00Z,1085.7001,Unknown / Unidentified,Other,7,South Coast and Montane
 2020-12-02T00:00:00Z,2020-12-03T00:00:00Z,22.270731,Unknown / Unidentified,Other,5,Central Valley
 2020-12-02T00:00:00Z,2020-12-03T00:00:00Z,58.151138,Unknown / Unidentified,Other,7,South Coast and Montane
