@@ -25,6 +25,8 @@ five_years <-
     first_10_15 = c(2011: 2015),
     second_15_20 = c(2016: 2020))
 
+# create combined population data
+
 pop <-
   bind_rows(
     cal_population_tract_2015 %>%
@@ -37,6 +39,16 @@ pop <-
                 estimate,
                 land_area,
                 population_density))
+
+# create combined roads data
+
+road <-
+  bind_rows(
+    cal_highway %>%
+      transmute(type = "highway"),
+    cal_railway %>%
+      transmute(type = "railway"))
+
 
 fire_with_cause %>%
   filter(
