@@ -11,7 +11,8 @@ road <-
     cal_highway %>%
       transmute(type = "highway"),
     cal_railway %>%
-      transmute(type = "railway"))
+      transmute(type = "railway")) %>%
+  st_zm()
 
 pop <-
   bind_rows(
@@ -24,7 +25,11 @@ pop <-
       transmute(year = 2020,
                 estimate,
                 land_area,
-                population_density))
+                population_density)) %>%
+  
+  # Remove empty polygons (Why do they exist?)
+  
+  filter(!st_is_empty(.))
 
 # Make subregion smaller
 
@@ -33,6 +38,7 @@ cal_counties %>%
   st_join(cal_subregion) %>%
   group_by(subregion_id, name) %>%
   summarise() %>%
+  rename(subregion_name = name) %>%
   st_write("output/calfire_app/data/subregion.geojson", delete_dsn = TRUE)
 
 cal_outline %>%
@@ -43,17 +49,15 @@ list(
   road = road,
   pop = pop) %>%
   iwalk(
-    ~ .x %>%
-      st_write(
-        paste0("output/calfire_app/data/", .y, ".geojson"),
-        delete_dsn = TRUE))
-
+    ~ st_write(.x,
+               paste0("output/calfire_app/data/", .y, ".geojson"),
+               delete_dsn = TRUE))
 
 # Save rasters
 
 rasters %>%
-  set_names("build", "veg", "fire") %>%
+  set_names("build", "veg", "fire", "pop") %>%
   iwalk(
     ~ terra::writeRaster(.x,
-                  paste0("output/calfire_app/data/", .y, ".tif"),
-                  overwrite = TRUE))
+                         paste0("output/calfire_app/data/", .y, ".tif"),
+                         overwrite = TRUE))

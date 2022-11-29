@@ -25,21 +25,6 @@ five_years <-
     first_10_15 = c(2011: 2015),
     second_15_20 = c(2016: 2020))
 
-# create combined population data
-
-pop <-
-  bind_rows(
-    cal_population_tract_2015 %>%
-      transmute(year = 2015,
-                estimate,
-                land_area,
-                population_density),
-    cal_population_tract_2020 %>%
-      transmute(year = 2020,
-                estimate,
-                land_area,
-                population_density))
-
 # create combined roads data
 
 road <-
@@ -56,7 +41,7 @@ fire_with_cause %>%
     gis_acres >= area_range$min,
     gis_acres <= area_range$max) %>%
   tm_shape(name = "fire from 2011 to 2015") +
-  tm_polygons(col = "#e85437",
+  tm_polygons(col = "#fddb86",
               alpha = 0.6) + 
   
   fire_with_cause %>%
@@ -70,53 +55,35 @@ fire_with_cause %>%
   
   # population density 
   
-  pop %>% 
-  filter(year == 2015) %>% 
-  tm_shape(name = 'population density 2011 to 2015') +
-  tm_polygons(col = 'population_density',
-              title = 'Population density',
-              breaks = c(
-                0,
-                1000,
-                2000,
-                3000,
-                5000,
-                10000,
-                100000),
-              border.alpha = 0,
-              alpha = 0.6) +
+  rasters$pop$pop_density_2015 %>%
+  tm_shape(name = "population density 2011 to 2015") +
+  tm_raster(col = "pop_density_2015",
+            title = "Population density",
+            breaks = c(
+              0,
+              1000,
+              2000,
+              3000,
+              5000,
+              10000,
+              100000),
+            alpha = 0.6) +
   
-  pop %>% 
-  filter(year == 2020) %>% 
-  tm_shape(name = 'population density 2016 to 2020') +
-  tm_polygons(col = 'population_density',
-              title = 'Population density',
-              breaks = c(
-                0,
-                1000,
-                2000,
-                3000,
-                5000,
-                10000,
-                100000),
-              border.alpha = 0,
-              alpha = 0.6) + 
+  rasters$pop$pop_density_2020 %>%
+  tm_shape(name = "population density 2016 to 2020") +
+  tm_raster(col = "pop_density_2020",
+            title = "Population density",
+            breaks = c(
+              0,
+              1000,
+              2000,
+              3000,
+              5000,
+              10000,
+              100000),
+            alpha = 0.6) + 
   
   road %>% 
-  tm_shape(name = 'Highway and railways') +
-  tm_lines(col = 'type',
-           title.col = 'Road type')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  tm_shape(name = "Highway and railways") +
+  tm_lines(col = "type",
+           title.col = "Road type")

@@ -14,32 +14,33 @@ library(ggplot2)
 
 shapefile_paths <-
   list.files(
-    'data/processed',
-    pattern = 'geojson$')
+    "data/processed",
+    pattern = "geojson$")
 
 shapefile_paths %>% 
-  file.path('data/processed', .) %>% 
+  file.path("data/processed", .) %>% 
   purrr::map(sf::st_read) %>% 
   set_names(
-    str_remove(shapefile_paths, '.geojson')) %>% 
+    str_remove(shapefile_paths, ".geojson")) %>% 
   list2env(.GlobalEnv)
 
 
 raster_paths <-
   list.files(
-    'data/processed',
-    pattern = 'tif$')
+    "data/processed",
+    pattern = "tif$")
 
 rasters <-
   raster_paths %>% 
-  file.path('data/processed', .) %>% 
+  file.path("data/processed", .) %>% 
   purrr::map(terra::rast) %>% 
   set_names(
-    str_remove(raster_paths, '.tif'))
+    str_remove(raster_paths, ".tif"))
 
 fire_cause <- read_rds("data/processed/fire_cause.rds")
 
 rm(shapefile_paths, raster_paths)
+
 
 # Preprocess --------------------------------------------------------------
 
@@ -76,6 +77,19 @@ rasters$fire <-
   terra::rasterize(rasters$calveg,
                    fun = length,
                    sum = TRUE)
+rasters$pop <-
+  c(
+    terra::rasterize(cal_population_tract_2015 %>%
+                       filter(!st_is_empty(.)),
+                     rasters$calveg,
+                     "population_density"),
+    terra::rasterize(cal_population_tract_2020 %>%
+                       filter(!st_is_empty(.)),
+                     rasters$calveg,
+                     "population_density"))
+
+terra::set.names(rasters$pop,
+                 c("pop_density_2015", "pop_density_2020"))
 
 cal_outline <-
   cal_counties %>%
