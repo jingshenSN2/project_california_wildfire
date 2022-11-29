@@ -47,14 +47,31 @@ fire_with_cause <-
   cal_fire_all %>%
   filter(year(alarm_date) >= 1980 & year(alarm_date) <= 2023) %>%
   mutate(
+    
+    # Convert cause number to name
+    
+    cause_name = .$cause %>%
+      
+      # Use `unknown` as default value
+      
+      replace_na(14) %>%
+      
+      # Get name
+      
+      map_chr(~ fire_cause$cause_name[[.x]]),
+    
+    # Classify the cause
+    
     cause_category = case_when(
       cause %in% fire_cause$category$human ~ "Human",
       cause %in% fire_cause$category$natural ~ "Natural",
       cause %in% fire_cause$category$vehicle ~ "Vehicle",
       cause %in% fire_cause$category$structure ~ "Structure",
-      TRUE ~ "other"))
+      TRUE ~ "other")) %>%
+  select(
+    -c(cause, objective))
 
-fire_r <-
+rasters$fire <-
   fire_with_cause %>%
   terra::rasterize(rasters$calveg,
                    fun = length,

@@ -177,27 +177,6 @@ cal_fire <-
          objective,
          geometry)
 
-cal_fire_r <-
-  cal_fire %>%
-  filter(alarm_date > '2010-01-01') %>%
-  select(geometry) %>%
-  mutate(n = 1) %>%
-  st_rasterize(cal_stars,
-               options = c("MERGE_ALG=ADD",
-                           "ALL_TOUCHED=TRUE")) %>%
-  replace(. == 0, NA)
-
-(cal_fire_r / 1000) %>%
-  tm_shape() +
-  tm_raster(col = "n",
-            alpha = 0.8,
-            palette = "YlOrRd",
-            style = "cont")
-
-# Save raster data
-
-write_stars(cal_fire_r / 1000, "data/processed/cal_fire.tif")
-
 # Save shapefile
 
 cal_fire %>%
@@ -310,6 +289,7 @@ rm(cal_highway, cal_railway)
 
 cal_region <-
   st_read("data/raw/shapefiles/cal_subregion.gdb") %>%
+  st_transform(4326) %>%
   group_by(CALVEGZONE) %>%
   summarise()
 
