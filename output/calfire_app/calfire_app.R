@@ -96,11 +96,12 @@ ui <- dashboardPage(
         tabName = "fire_summary",
         h2("Wildfire Summary Table"),
         p("Here is a statistical table of wildfire burned area grouped 
-          by alarm date year. The acreage is in acres."),
+          by alarm date year or subregion. The area is in acres."),
         radioButtons(
           "summary_by",
           "Summary By",
-          c("Year", "Subregion")
+          c("Year" = "year",
+            "Subregion (The selection of the drop-down menu in the sidebar is ignored)" = "subregion")
         ),
         dataTableOutput("summary")
       ),
@@ -170,7 +171,7 @@ server <- function(input, output) {
   
   fire_summary <-
     reactive({
-      if (input$summary_by == "Year") {
+      if (input$summary_by == "year") {
         grouped <-
           fire_dfr_filtered() %>%
           filter(input$subregion == 0 |
