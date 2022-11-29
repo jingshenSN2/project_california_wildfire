@@ -16,13 +16,13 @@ shapefile_paths <-
     "data",
     pattern = "geojson$")
 
-# shapefiles <- 
-#   shapefile_paths %>%
-#   purrr::map(
-#     ~ st_read(
-#       paste0("data/", .x))) %>%
-#   set_names(
-#     str_remove(shapefile_paths, ".geojson"))
+shapefiles <-
+  shapefile_paths %>%
+  purrr::map(
+    ~ st_read(
+      paste0("data/", .x))) %>%
+  set_names(
+    str_remove(shapefile_paths, ".geojson"))
 
 rasters_paths <-
   list.files(
@@ -47,27 +47,11 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Introduction", tabName = "intro", icon = icon("clipboard")),
-      menuItem(
-        "Tables",
-        tabName = "tables",
-        icon = icon("list"),
-        menuItem("Wildfire List", tabName = "fire_table", icon = icon("fire")),
-        menuItem("Wildfire Summary", tabName = "fire_summary", icon = icon("table"))
-      ),
-      menuItem(
-        "Charts",
-        tabName = "charts",
-        icon = icon("chart-bar"),
-        menuItem("Road Distance", tabName = "road", icon = icon("road")),
-        menuItem("Population", tabName = "pop", icon = icon("users"))
-      ),
-      menuItem(
-        "Maps",
-        tabName = "maps",
-        icon = icon("map"),
-        menuItem("Vegetation v.s. fire", tabName = "veg", icon = icon("tree")),
-        menuItem("Building v.s. fire", tabName = "build", icon = icon("city"))
-      )
+      menuItem("Wildfire Summary", tabName = "fire_summary", icon = icon("table")),
+      menuItem("Vegetation", tabName = "veg", icon = icon("tree")),
+      menuItem("Road", tabName = "road", icon = icon("road")),
+      menuItem("Population", tabName = "pop", icon = icon("users")),
+      menuItem("Building", tabName = "build", icon = icon("city"))
     ),
     dateRangeInput(
       "date",
@@ -92,13 +76,10 @@ ui <- dashboardPage(
         "Great Basin" = 9)
     ),
     checkboxGroupInput(
-      "cause",
+      "causes",
       "Cause of fire",
-      c("Human" = "Human",
-        "Natural" = "Natural",
-        "Structure" = "Structure",
-        "Vehicle" = "Vehicle",
-        "Other" = "other")
+      c("Human", "Natural", "Structure", "Vehicle", "Other"),
+      c("Human", "Natural")
     )
   ),
   dashboardBody(
@@ -108,17 +89,27 @@ ui <- dashboardPage(
         h2("Introduction")
       ),
       tabItem(
-        tabName = "fire_table",
-        h2("Introduction")
-      ),
-      tabItem(
         tabName = "fire_summary",
-        h2("Introduction")
+        h2("Wildfire Summary Table"),
+        p("Here is a statistical table of wildfire burned area grouped by alarm date year. The acreage is in acres."),
+        dataTableOutput("summary")
       ),
       tabItem(
-        tabName = "intro",
-        h2("Introduction")
+        tabName = "veg",
+        h2("Vegetation")
       ),
+      tabItem(
+        tabName = "road",
+        h2("Road")
+      ),
+      tabItem(
+        tabName = "pop",
+        h2("Population")
+      ),
+      tabItem(
+        tabName = "build",
+        h2("Building")
+      )
     )
   )
 )
@@ -128,6 +119,42 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   
+  subregion <-
+    reactive({
+      shapefiles$subregion %>%
+        filter(subregion_id == input$subregion | input$subregion == 0)
+    })
+  
+  fire <-
+    reactive({
+      shapefiles$fire %>%
+        filter(
+          between(
+            as_date(alarm_date),
+            input$date[1],
+            input$date[2]),
+          cause_category %in% input$causes) %>%
+        st_filter(subregion())
+    })
+  
+  fire_summary <-
+    reactive({
+      fire() %>%
+        as_tibble() %>%
+        select(-geometry) %>%
+        group_by(
+          Year = year(alarm_date)) %>%
+        summarise(`Count` = n(),
+                  `Min Area` = round(min(gis_acres), 1),
+                  `Avg Area` = round(mean(gis_acres), 1),
+                  `Max Area` = round(max(gis_acres), 1),
+                  `Total Area` = round(sum(gis_acres), 1))
+    })
+  
+  output$summary <-
+    renderDataTable({
+      fire_summary()
+    })
 }
 
 
