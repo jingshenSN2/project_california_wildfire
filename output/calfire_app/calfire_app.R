@@ -245,7 +245,7 @@ server <- function(input, output) {
         filter(!(fire == 0 & veg == 0)) %>%
       ggplot(aes(x = veg, y = fire)) +
         geom_bin2d() +
-        scale_fill_distiller(palette = "OrRd", direction = 1) +
+        scale_fill_continuous(type = "viridis") +
         labs(x = "Vegetation",
              y = "Fire")
     })
