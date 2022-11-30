@@ -76,19 +76,31 @@ ui <- dashboardPage(
           title = "Large Wildfire on Map",
           status = "primary",
           p("Here are the perimeters of wildfires that burned an area greater than 5,000 acres."),
-          p("Notes: A fire will be classified into the subregion with the largest overlap area."),
           tmapOutput("large_fire")
         ),
         box(
           title = "Wildfire Plot by Year",
-          p("Here are the number of wildfires count by year."),
           status = "primary",
+          p("Here are the number of wildfires count by year."),
           plotOutput("fire_plot")
         )
       ),
       tabItem(
         tabName = "veg",
-        h2("Vegetation")
+        h2("Vegetation"),
+        p("Plot and map will take some time to display."),
+        box(
+          title = "Vegetation on Map",
+          status = "primary",
+          p("Switch between two layers to see the relationship."),
+          tmapOutput("veg_map")
+        ),
+        box(
+          title = "Wildfire vs Vegetation",
+          status = "primary",
+          p("Wildfires have a negative correlation with vegetation level."),
+          plotOutput("veg_plot")
+        )
       ),
       tabItem(
         tabName = "road",

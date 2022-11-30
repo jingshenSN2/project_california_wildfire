@@ -76,13 +76,12 @@ server <- function(input, output) {
         filter(subregion_id == input$subregion | input$subregion == 0)
     })
   
-  # Large wildfire reactive
+  # Fire reactive
   
-  large_fire <-
+  fire_filtered <-
     reactive({
       shapefiles$fire %>%
         filter(
-          gis_acres >= 5000,
           between(
             as_date(alarm_date),
             input$date[1],
@@ -90,6 +89,14 @@ server <- function(input, output) {
           cause_category %in% input$causes,
           (input$subregion == 0 |
              subregion_id == input$subregion))
+    })
+  
+  # Large wildfire reactive
+  
+  large_fire <-
+    reactive({
+      fire_filtered() %>%
+        filter(gis_acres >= 5000)
     })
   
   # Fire dataframe reactive
@@ -128,6 +135,24 @@ server <- function(input, output) {
                   `Total Area` = round(sum(gis_acres), 1))
     })
   
+  # Veg raster reactive
+  
+  veg_raster <-
+    reactive({
+      rasters$veg %>%
+        terra::mask(subregion())
+    })
+  
+  veg_map <-
+    reactive({
+      veg_raster() %>%
+        tm_shape(name = "Vegetation") +
+        tm_raster(title = "Vegetation Level",
+                  alpha = 0.8,
+                  style = "cont",
+                  palette = "Greens")
+    })
+  
   # Road reactive
   
   road <-
@@ -142,14 +167,17 @@ server <- function(input, output) {
   fire_raster <-
     reactive({
       rasters$fire %>%
-        terra::mask(
-          subregion()) %>%
+        terra::mask(subregion())
+    })
+  
+  fire_map <-
+    reactive({
+      fire_raster() %>%
         tm_shape(name = "Fire") +
         tm_raster(title = "Number of wildfires",
                   alpha = 0.8,
                   style = "cont")
     })
-  
   
   # Output part
   
@@ -199,10 +227,33 @@ server <- function(input, output) {
           scales = "free_y")
     })
   
+  output$veg_map <-
+    renderTmap({
+      fire_map() +
+        veg_map()
+    })
+  
+  output$veg_plot <-
+    renderPlot({
+      tibble(
+        fire = fire_raster() %>% 
+          terra::values() %>%
+          replace_na(0),
+        veg = veg_raster() %>% 
+          terra::values() %>%
+          replace_na(0)) %>%
+        filter(!(fire == 0 & veg == 0)) %>%
+      ggplot(aes(x = veg, y = fire)) +
+        geom_bin2d() +
+        scale_fill_distiller(palette = "OrRd", direction = 1) +
+        labs(x = "Vegetation",
+             y = "Fire")
+    })
+  
   output$road <-
     renderTmap({
-      fire_raster() +
-      road() %>%
+      fire_map() +
+        road() %>%
         tm_shape(name = "Road") +
         tm_lines(title.col = "Road Type",
                  col = "type",
