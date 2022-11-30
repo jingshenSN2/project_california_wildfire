@@ -40,7 +40,7 @@ fire_with_cause %>%
     year(alarm_date) %in% five_years$first_10_15,
     gis_acres >= area_range$min,
     gis_acres <= area_range$max) %>%
-  tm_shape(name = "fire from 2011 to 2015") +
+  tm_shape(name = "Fire from 2011 to 2015") +
   tm_polygons(col = "#fddb86",
               alpha = 0.6) + 
   
@@ -49,14 +49,14 @@ fire_with_cause %>%
     year(alarm_date) %in% five_years$second_15_20,
     gis_acres >= area_range$min,
     gis_acres <= area_range$max) %>%
-  tm_shape(name = "fire from 2016 to 2020") +
+  tm_shape(name = "Fire from 2016 to 2020") +
   tm_polygons(col = "#e85437",
               alpha = 0.6) +
   
   # population density 
   
   rasters$pop$pop_density_2015 %>%
-  tm_shape(name = "population density 2011 to 2015") +
+  tm_shape(name = "Population density 2011 to 2015") +
   tm_raster(col = "pop_density_2015",
             title = "Population density",
             breaks = c(
@@ -70,7 +70,7 @@ fire_with_cause %>%
             alpha = 0.6) +
   
   rasters$pop$pop_density_2020 %>%
-  tm_shape(name = "population density 2016 to 2020") +
+  tm_shape(name = "Population density 2016 to 2020") +
   tm_raster(col = "pop_density_2020",
             title = "Population density",
             breaks = c(
