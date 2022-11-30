@@ -86,17 +86,31 @@ server <- function(input, output) {
             as_date(alarm_date),
             input$date[1],
             input$date[2]),
-          cause_category %in% input$causes,
-          (input$subregion == 0 |
-             subregion_id == input$subregion))
+          cause_category %in% input$causes)
     })
   
   # Large wildfire reactive
   
-  large_fire <-
+  large_fire_map <-
     reactive({
       fire_filtered() %>%
-        filter(gis_acres >= 5000)
+        filter(gis_acres >= 5000,
+               (input$subregion == 0 |
+                  subregion_id == input$subregion)) %>%
+        tm_shape(name = "Fire Perimeter") +
+        tm_polygons(title = "Cause",
+                    col = "cause_category",
+                    palette = c("Human" = "#fb8072",
+                                "Natural" = "#a6d854",
+                                "Structure" = "#6e549d",
+                                "Vehicle" = "#80b1d3",
+                                "Other" = "#aaaaaa"),
+                    alpha = 0.8,
+                    popup.vars = c("Alarm Date" = "alarm_date",
+                                   "Containment Date" = "cont_date",
+                                   "Burned Area [acres]" = "gis_acres",
+                                   "Cause Category" = "cause_category",
+                                   "Cause" = "cause_name"))
     })
   
   # Fire dataframe reactive
@@ -145,13 +159,13 @@ server <- function(input, output) {
                          fun = length,
                          sum = TRUE) %>%
         terra::aggregate(2^input$agg, fun = "sum", na.rm=TRUE) %>%
-        replace(. == 0, NA) %>%
-        terra::mask(subregion())
+        replace(. == 0, NA)
     })
   
   fire_map <-
     reactive({
       fire_raster() %>%
+        terra::mask(subregion()) %>%
         tm_shape(name = "Fire") +
         tm_raster(title = "Number of wildfires",
                   alpha = 0.8,
@@ -165,13 +179,13 @@ server <- function(input, output) {
     reactive({
       rasters$veg %>%
         terra::aggregate(2^input$agg, na.rm=TRUE) %>%
-        replace(. == 0, NA) %>%
-        terra::mask(subregion())
+        replace(. == 0, NA)
     })
   
   veg_map <-
     reactive({
       veg_raster() %>%
+        terra::mask(subregion()) %>%
         tm_shape(name = "Vegetation") +
         tm_raster(title = "Vegetation Level",
                   alpha = 0.8,
@@ -194,13 +208,13 @@ server <- function(input, output) {
     reactive({
       rasters$pop$pop_density_2020 %>%
         terra::aggregate(2^input$agg, na.rm=TRUE) %>%
-        replace(. == 0, NA) %>%
-        terra::mask(subregion())
+        replace(. == 0, NA)
     })
   
   pop_map <-
     reactive({
       pop_raster() %>%
+        terra::mask(subregion()) %>%
         tm_shape(name = "Population") +
         tm_raster(title = "Population Density",
                   alpha = 0.8,
@@ -214,18 +228,46 @@ server <- function(input, output) {
     reactive({
       rasters$build %>%
         terra::aggregate(2^input$agg, na.rm=TRUE) %>%
-        replace(. == 0, NA) %>%
-        terra::mask(subregion())
+        replace(. == 0, NA)
     })
   
   build_map <-
     reactive({
       build_raster() %>%
+        terra::mask(subregion()) %>%
         tm_shape(name = "Building") +
         tm_raster(title = "Building Density",
                   alpha = 0.8,
                   style = "cont",
                   palette = "Blues")
+    })
+  
+  # County extraction reactive
+  
+  county_ext <-
+    reactive({
+      shapefiles$subregion %>%
+        mutate(
+          fire = terra::extract(fire_raster(),
+                                .,
+                                fun = sum,
+                                na.rm = TRUE) %>%
+            pull(),
+          veg = terra::extract(veg_raster(),
+                               .,
+                               fun = mean,
+                               na.rm = TRUE) %>%
+            pull(),
+          pop = terra::extract(pop_raster(),
+                               .,
+                               fun = mean,
+                               na.rm = TRUE) %>%
+            pull(),
+          build = terra::extract(build_raster(),
+                                 .,
+                                 fun = mean,
+                                 na.rm = TRUE) %>%
+            pull())
     })
   
   # Output part
@@ -245,21 +287,7 @@ server <- function(input, output) {
       subregion() %>%
         tm_shape(name = "Region Boundary") +
         tm_borders(lty = "longdash") +
-        large_fire() %>%
-        tm_shape(name = "Fire Perimeter") +
-        tm_polygons(title = "Cause",
-                    col = "cause_category",
-                    palette = c("Human" = "#fb8072",
-                                "Natural" = "#a6d854",
-                                "Structure" = "#6e549d",
-                                "Vehicle" = "#80b1d3",
-                                "Other" = "#aaaaaa"),
-                    alpha = 0.8,
-                    popup.vars = c("Alarm Date" = "alarm_date",
-                                   "Containment Date" = "cont_date",
-                                   "Burned Area [acres]" = "gis_acres",
-                                   "Cause Category" = "cause_category",
-                                   "Cause" = "cause_name"))
+        large_fire_map()
     })
   
   output$fire_plot <-
@@ -284,17 +312,10 @@ server <- function(input, output) {
   
   output$veg_plot <-
     renderPlot({
-      tibble(
-        fire = fire_raster() %>% 
-          terra::values() %>%
-          replace_na(0),
-        veg = veg_raster() %>% 
-          terra::values() %>%
-          replace_na(0)) %>%
-        filter(!(fire == 0 & veg == 0)) %>%
+      county_ext() %>%
         ggplot(aes(x = veg, y = fire)) +
-        geom_bin2d() +
-        scale_fill_continuous(type = "viridis") +
+        geom_point() +
+        geom_smooth(method = "lm") +
         labs(x = "Vegetation",
              y = "Fire")
     })
@@ -333,17 +354,10 @@ server <- function(input, output) {
   
   output$pop_plot <-
     renderPlot({
-      tibble(
-        fire = fire_raster() %>% 
-          terra::values() %>%
-          replace_na(0),
-        pop = pop_raster() %>% 
-          terra::values() %>%
-          replace_na(0)) %>%
-        filter(!(fire == 0 & pop == 0)) %>%
+      county_ext() %>%
         ggplot(aes(x = pop, y = fire)) +
-        geom_bin2d() +
-        scale_fill_continuous(type = "viridis") +
+        geom_point() +
+        geom_smooth(method = "lm") +
         labs(x = "Population Density",
              y = "Fire")
     })
@@ -356,17 +370,10 @@ server <- function(input, output) {
   
   output$build_plot <-
     renderPlot({
-      tibble(
-        fire = fire_raster() %>% 
-          terra::values() %>%
-          replace_na(0),
-        build = build_raster() %>% 
-          terra::values() %>%
-          replace_na(0)) %>%
-        filter(!(fire == 0 & build == 0)) %>%
+      county_ext() %>%
         ggplot(aes(x = build, y = fire)) +
-        geom_bin2d() +
-        scale_fill_continuous(type = "viridis") +
+        geom_point() +
+        geom_smooth(method = "lm") +
         labs(x = "Building Density",
              y = "Fire")
     })

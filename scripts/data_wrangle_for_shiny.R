@@ -45,8 +45,9 @@ pop <-
 subregion %>%
   st_write("output/calfire_app/data/subregion.geojson", delete_dsn = TRUE)
 
-cal_outline %>%
-  st_write("output/calfire_app/data/outline.geojson", delete_dsn = TRUE)
+cal_counties %>%
+  select(name) %>%
+  st_write("output/calfire_app/data/county.geojson", delete_dsn = TRUE)
 
 # Fire with subregion
 

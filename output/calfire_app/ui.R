@@ -52,7 +52,7 @@ ui <- dashboardPage(
       "Raster Aggregation Level",
       min = 0,
       max = 4,
-      value = 0,
+      value = 2,
     )
   ),
   dashboardBody(
