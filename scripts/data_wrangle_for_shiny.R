@@ -57,7 +57,16 @@ fire_with_subregion <-
   
   st_join(subregion,
           left = FALSE,
-          largest=TRUE)
+          largest=TRUE) %>%
+  st_simplify(dTolerance = 100) %>%
+  mutate(
+    distance_to_road = 
+      st_distance(.,
+                  road %>%
+                    st_union()) %>%
+      units::set_units("km") %>%
+      as.numeric() %>%
+      round(1))
 
 fire_with_subregion %>%
   as_tibble() %>%
@@ -69,17 +78,10 @@ fire_with_subregion %>%
   arrange(alarm_date) %>%
   write_csv("output/calfire_app/data/fire.csv")
 
-# Only fire larger than 5000 acres
-
-large_fire <-
-  fire_with_subregion %>%
-  filter(gis_acres >= 5000) %>%
-  st_simplify(dTolerance = 100)
-
 # Save shapefiles
 
 list(
-  large_fire = large_fire,
+  fire = fire_with_subregion,
   road = road,
   pop = pop) %>%
   iwalk(

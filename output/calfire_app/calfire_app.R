@@ -12,7 +12,15 @@ library(tidyverse)
 # Read in data ------------------------------------------------------------
 
 fire_dfr <-
-  read_csv("data/fire.csv")
+  read_csv("data/fire.csv") %>%
+  mutate(
+    cause_category = factor(cause_category,
+                            levels = c("Human",
+                                       "Natural",
+                                       "Structure",
+                                       "Vehicle",
+                                       "Other")))
+
 
 shapefile_paths <-
   list.files(
@@ -43,101 +51,24 @@ rasters <-
 rm(shapefile_paths, rasters_paths)
 
 
-# UI function -------------------------------------------------------------
+# Load UI -----------------------------------------------------------------
 
-ui <- dashboardPage(
-  dashboardHeader(title = "California Wildfires"),
-  dashboardSidebar(
-    sidebarMenu(
-      menuItem("Introduction", tabName = "intro", icon = icon("clipboard")),
-      menuItem("Wildfire Summary", tabName = "fire_summary", icon = icon("table")),
-      menuItem("Large Wildfires", tabName = "large_fire", icon = icon("fire")),
-      menuItem("Vegetation", tabName = "veg", icon = icon("tree")),
-      menuItem("Road", tabName = "road", icon = icon("road")),
-      menuItem("Population", tabName = "pop", icon = icon("users")),
-      menuItem("Building", tabName = "build", icon = icon("city"))
-    ),
-    dateRangeInput(
-      "date",
-      "Alarm Date Range",
-      start = "2000-01-01",
-      end = "2020-12-31",
-      min = "1980-01-01",
-      max = "2023-01-01"
-    ),
-    selectInput(
-      "subregion",
-      "Subregion",
-      c("All" = 0,
-        "North Coast and Montane" = 1,
-        "North Interior" = 2,
-        "North Sierran" = 3,
-        "South Sierran" = 4,
-        "Central Valley" = 5,
-        "Central Coast and Montane" = 6,
-        "South Coast and Montane" = 7,
-        "South Interior" = 8,
-        "Great Basin" = 9)
-    ),
-    checkboxGroupInput(
-      "causes",
-      "Cause of fire",
-      c("Human", "Natural", "Structure", "Vehicle", "Other"),
-      c("Human", "Natural")
-    )
-  ),
-  dashboardBody(
-    tabItems(
-      tabItem(
-        tabName = "intro",
-        h2("Introduction")
-      ),
-      tabItem(
-        tabName = "fire_summary",
-        h2("Wildfire Summary Table"),
-        p("Here is a statistical table of wildfire burned area grouped 
-          by alarm date year or subregion. The area is in acres."),
-        radioButtons(
-          "summary_by",
-          "Summary By",
-          c("Year" = "year",
-            "Subregion (The selection of the drop-down menu in the sidebar is ignored)" = "subregion")
-        ),
-        dataTableOutput("summary")
-      ),
-      tabItem(
-        tabName = "large_fire",
-        h2("Large Wildfire on Map"),
-        p("Here are the perimeters of wildfires that burned an area greater than 5,000 acres. 
-          When the fire perimeter overlaps with more than one subregion, 
-          it will be classified into the subregion with the largest overlap area.
-          Map may take some time to display."),
-        tmapOutput("large_fire")
-      ),
-      tabItem(
-        tabName = "veg",
-        h2("Vegetation")
-      ),
-      tabItem(
-        tabName = "road",
-        h2("Road")
-      ),
-      tabItem(
-        tabName = "pop",
-        h2("Population")
-      ),
-      tabItem(
-        tabName = "build",
-        h2("Building")
-      )
-    )
-  )
-)
+source("ui.R")
 
+
+# Plot outside server -----------------------------------------------------
+
+subregion_map <-
+  shapefiles$subregion %>%
+  tm_shape(name = "Subregion") +
+  tm_polygons(title = "Subregion Name",
+              col = "subregion_name")
 
 # Server function ---------------------------------------------------------
 
 server <- function(input, output) {
+  
+  # Subregion reactive
   
   subregion <-
     reactive({
@@ -145,10 +76,13 @@ server <- function(input, output) {
         filter(subregion_id == input$subregion | input$subregion == 0)
     })
   
+  # Large wildfire reactive
+  
   large_fire <-
     reactive({
-      shapefiles$large_fire %>%
+      shapefiles$fire %>%
         filter(
+          gis_acres >= 5000,
           between(
             as_date(alarm_date),
             input$date[1],
@@ -157,6 +91,8 @@ server <- function(input, output) {
           (input$subregion == 0 |
              subregion_id == input$subregion))
     })
+  
+  # Fire dataframe reactive
   
   fire_dfr_filtered <-
     reactive({
@@ -168,6 +104,8 @@ server <- function(input, output) {
             input$date[2]),
           cause_category %in% input$causes)
     })
+  
+  # Summary reactive
   
   fire_summary <-
     reactive({
@@ -190,6 +128,36 @@ server <- function(input, output) {
                   `Total Area` = round(sum(gis_acres), 1))
     })
   
+  # Road reactive
+  
+  road <-
+    reactive({
+      shapefiles$road %>%
+        filter(input$subregion == 0 |
+                 subregion_id == input$subregion)
+    })
+  
+  # Fire raster reactive
+  
+  fire_raster <-
+    reactive({
+      rasters$fire %>%
+        terra::mask(
+          subregion()) %>%
+        tm_shape(name = "Fire") +
+        tm_raster(title = "Number of wildfires",
+                  alpha = 0.8,
+                  style = "cont")
+    })
+  
+  
+  # Output part
+  
+  output$subregion <-
+    renderTmap({
+      subregion_map
+    })
+  
   output$summary <-
     renderDataTable({
       fire_summary()
@@ -204,12 +172,59 @@ server <- function(input, output) {
         tm_shape(name = "Fire Perimeter") +
         tm_polygons(title = "Cause",
                     col = "cause_category",
+                    palette = c("Human" = "#fb8072",
+                                "Natural" = "#a6d854",
+                                "Structure" = "#6e549d",
+                                "Vehicle" = "#80b1d3",
+                                "Other" = "#aaaaaa"),
+                    alpha = 0.8,
                     popup.vars = c("Alarm Date" = "alarm_date",
                                    "Containment Date" = "cont_date",
                                    "Burned Area [acres]" = "gis_acres",
                                    "Cause Category" = "cause_category",
                                    "Cause" = "cause_name"))
     })
+  
+  output$fire_plot <-
+    renderPlot({
+      fire_dfr_filtered() %>%
+        group_by(Year = year(alarm_date),
+                 cause_category) %>%
+        summarise(Count = n()) %>%
+        ggplot(aes(x = Year, y = Count)) +
+        geom_point() +
+        geom_smooth(method = "lm") +
+        facet_wrap(
+          ~ cause_category,
+          scales = "free_y")
+    })
+  
+  output$road <-
+    renderTmap({
+      fire_raster() +
+      road() %>%
+        tm_shape(name = "Road") +
+        tm_lines(title.col = "Road Type",
+                 col = "type",
+                 alpha = 0.8,
+                 palette = c("highway" = "#377eb8",
+                             "railway" = "#984ea3"))
+    })
+  
+  output$road_distance <-
+    renderPlot({
+      fire_dfr_filtered() %>%
+        filter(input$subregion == 0 |
+                 subregion_id == input$subregion) %>%
+        ggplot(aes(x = distance_to_road)) +
+        geom_histogram(color = "black", fill = "white", bins = 30) +
+        facet_wrap(
+          ~ cause_category,
+          scales = "free_y") +
+        labs(x = "Road distance [km]",
+             y = "Number of fires")
+    })
+  
 }
 
 
