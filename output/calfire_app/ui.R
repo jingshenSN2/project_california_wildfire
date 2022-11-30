@@ -46,6 +46,13 @@ ui <- dashboardPage(
       "Cause of fire",
       c("Human", "Natural", "Structure", "Vehicle", "Other"),
       c("Human", "Natural")
+    ),
+    sliderInput(
+      "agg",
+      "Raster Aggregation Level",
+      min = 0,
+      max = 4,
+      value = 0,
     )
   ),
   dashboardBody(
@@ -53,6 +60,7 @@ ui <- dashboardPage(
       tabItem(
         tabName = "intro",
         h2("Introduction"),
+        p(""),
         tmapOutput("subregion")
       ),
       tabItem(
@@ -109,7 +117,7 @@ ui <- dashboardPage(
           Let's explore the relationship between wildfires and the 
           distance to the nearest road."),
         box(
-          title = "Road v.s. Fire on Map",
+          title = "Road on Map",
           status = "primary",
           tmapOutput("road")
         ),
@@ -121,11 +129,35 @@ ui <- dashboardPage(
       ),
       tabItem(
         tabName = "pop",
-        h2("Population")
+        h2("Population"),
+        p(""),
+        box(
+          title = "Population on Map",
+          status = "primary",
+          tmapOutput("pop_map")
+        ),
+        box(
+          title = "Wildfire vs Population",
+          status = "primary",
+          plotOutput("pop_plot")
+        )
       ),
       tabItem(
         tabName = "build",
-        h2("Building")
+        h2("Building"),
+        p("Plot and map will take some time to display."),
+        box(
+          title = "Building on Map",
+          status = "primary",
+          p("Switch between two layers to see the relationship."),
+          tmapOutput("build_map")
+        ),
+        box(
+          title = "Wildfire vs Building",
+          status = "primary",
+          p("Wildfires have a negative correlation with building level."),
+          plotOutput("build_plot")
+        )
       )
     )
   )

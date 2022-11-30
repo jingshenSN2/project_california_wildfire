@@ -135,11 +135,37 @@ server <- function(input, output) {
                   `Total Area` = round(sum(gis_acres), 1))
     })
   
+  # Fire raster reactive
+  
+  fire_raster <-
+    reactive({
+      fire_filtered() %>%
+        filter(!st_is_empty(.)) %>%
+        terra::rasterize(rasters$veg,
+                         fun = length,
+                         sum = TRUE) %>%
+        terra::aggregate(2^input$agg, fun = "sum", na.rm=TRUE) %>%
+        replace(. == 0, NA) %>%
+        terra::mask(subregion())
+    })
+  
+  fire_map <-
+    reactive({
+      fire_raster() %>%
+        tm_shape(name = "Fire") +
+        tm_raster(title = "Number of wildfires",
+                  alpha = 0.8,
+                  style = "cont",
+                  palette = "Reds")
+    })
+  
   # Veg raster reactive
   
   veg_raster <-
     reactive({
       rasters$veg %>%
+        terra::aggregate(2^input$agg, na.rm=TRUE) %>%
+        replace(. == 0, NA) %>%
         terra::mask(subregion())
     })
   
@@ -162,21 +188,44 @@ server <- function(input, output) {
                  subregion_id == input$subregion)
     })
   
-  # Fire raster reactive
+  # Population raster reactive
   
-  fire_raster <-
+  pop_raster <-
     reactive({
-      rasters$fire %>%
+      rasters$pop$pop_density_2020 %>%
+        terra::aggregate(2^input$agg, na.rm=TRUE) %>%
+        replace(. == 0, NA) %>%
         terra::mask(subregion())
     })
   
-  fire_map <-
+  pop_map <-
     reactive({
-      fire_raster() %>%
-        tm_shape(name = "Fire") +
-        tm_raster(title = "Number of wildfires",
+      pop_raster() %>%
+        tm_shape(name = "Population") +
+        tm_raster(title = "Population Density",
                   alpha = 0.8,
-                  style = "cont")
+                  style = "cont",
+                  palette = "Blues")
+    })
+  
+  # Building raster reactive
+  
+  build_raster <-
+    reactive({
+      rasters$build %>%
+        terra::aggregate(2^input$agg, na.rm=TRUE) %>%
+        replace(. == 0, NA) %>%
+        terra::mask(subregion())
+    })
+  
+  build_map <-
+    reactive({
+      build_raster() %>%
+        tm_shape(name = "Building") +
+        tm_raster(title = "Building Density",
+                  alpha = 0.8,
+                  style = "cont",
+                  palette = "Blues")
     })
   
   # Output part
@@ -229,8 +278,8 @@ server <- function(input, output) {
   
   output$veg_map <-
     renderTmap({
-      fire_map() +
-        veg_map()
+      veg_map() +
+        fire_map()
     })
   
   output$veg_plot <-
@@ -243,7 +292,7 @@ server <- function(input, output) {
           terra::values() %>%
           replace_na(0)) %>%
         filter(!(fire == 0 & veg == 0)) %>%
-      ggplot(aes(x = veg, y = fire)) +
+        ggplot(aes(x = veg, y = fire)) +
         geom_bin2d() +
         scale_fill_continuous(type = "viridis") +
         labs(x = "Vegetation",
@@ -274,6 +323,52 @@ server <- function(input, output) {
           scales = "free_y") +
         labs(x = "Road distance [km]",
              y = "Number of fires")
+    })
+  
+  output$pop_map <-
+    renderTmap({
+      pop_map() +
+        fire_map()
+    })
+  
+  output$pop_plot <-
+    renderPlot({
+      tibble(
+        fire = fire_raster() %>% 
+          terra::values() %>%
+          replace_na(0),
+        pop = pop_raster() %>% 
+          terra::values() %>%
+          replace_na(0)) %>%
+        filter(!(fire == 0 & pop == 0)) %>%
+        ggplot(aes(x = pop, y = fire)) +
+        geom_bin2d() +
+        scale_fill_continuous(type = "viridis") +
+        labs(x = "Population Density",
+             y = "Fire")
+    })
+  
+  output$build_map <-
+    renderTmap({
+      build_map() +
+        fire_map()
+    })
+  
+  output$build_plot <-
+    renderPlot({
+      tibble(
+        fire = fire_raster() %>% 
+          terra::values() %>%
+          replace_na(0),
+        build = build_raster() %>% 
+          terra::values() %>%
+          replace_na(0)) %>%
+        filter(!(fire == 0 & build == 0)) %>%
+        ggplot(aes(x = build, y = fire)) +
+        geom_bin2d() +
+        scale_fill_continuous(type = "viridis") +
+        labs(x = "Building Density",
+             y = "Fire")
     })
   
 }
