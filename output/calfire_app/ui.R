@@ -79,6 +79,8 @@ ui <- dashboardPage(
       tabItem(
         tabName = "fire_viz",
         h2("Wildfire Visualization"),
+        p("Before analyzing the relationship with other factors, let's first
+          understand a little bit about the wildfire itself."),
         p("Plot and map will take some time to display."),
         box(
           title = "Large Wildfire on Map",
@@ -96,6 +98,8 @@ ui <- dashboardPage(
       tabItem(
         tabName = "veg",
         h2("Vegetation"),
+        p("Vegetation (trees/shrubs/grass) is a good fuel the wildfires.
+          Are wildfires more likely to occur in heavy vegetation areas?"),
         p("Plot and map will take some time to display."),
         box(
           title = "Vegetation on Map",
@@ -106,46 +110,52 @@ ui <- dashboardPage(
         box(
           title = "Wildfire vs Vegetation",
           status = "primary",
-          p("Wildfires have a negative correlation with vegetation level."),
+          p("Average Vegetation Level vs Number of Wildfires in 9 subregions."),
           plotOutput("veg_plot")
         )
       ),
       tabItem(
         tabName = "road",
         h2("Road"),
-        p("Roads(highway/railway) are a sign for human presence/activity. 
-          Let's explore the relationship between wildfires and the 
-          distance to the nearest road."),
+        p("Roads(highway/railway) are a sign of human presence/activity. 
+          Are wildfires more likely to occur near roads?"),
+        p("Plot and map will take some time to display."),
         box(
           title = "Road on Map",
           status = "primary",
+          p("Switch between two layers to see the relationship."),
           tmapOutput("road")
         ),
         box(
           title = "Road Distance Histogram",
           status = "primary",
+          p("Distance from a wildfire to the nearest road."),
           plotOutput("road_distance")
         )
       ),
       tabItem(
         tabName = "pop",
         h2("Population"),
-        p(""),
+        p("Population is a very straighforward sign of human presence. 
+          Are wildfires more likely to occur near populated areas?"),
         box(
           title = "Population on Map",
           status = "primary",
+          p("Switch between two layers to see the relationship."),
           tmapOutput("pop_map")
         ),
         box(
           title = "Wildfire vs Population",
           status = "primary",
+          p("Average Population Density vs Number of Wildfires in 9 subregions."),
           plotOutput("pop_plot")
         )
       ),
       tabItem(
         tabName = "build",
         h2("Building"),
-        p("Plot and map will take some time to display."),
+        p("Buildings are also a very straighforward sign of human presence. 
+          Are wildfires more likely to occur near areas of high building density?"),
         box(
           title = "Building on Map",
           status = "primary",
@@ -155,7 +165,7 @@ ui <- dashboardPage(
         box(
           title = "Wildfire vs Building",
           status = "primary",
-          p("Wildfires have a negative correlation with building level."),
+          p("Average Building Density vs Number of Wildfires in 9 subregions."),
           plotOutput("build_plot")
         )
       )

@@ -64,6 +64,13 @@ subregion_map <-
   tm_polygons(title = "Subregion Name",
               col = "subregion_name")
 
+cause_palette <-
+  c("Human" = "#fb8072",
+    "Natural" = "#a6d854",
+    "Structure" = "#6e549d",
+    "Vehicle" = "#80b1d3",
+    "Other" = "#aaaaaa")
+
 # Server function ---------------------------------------------------------
 
 server <- function(input, output) {
@@ -100,11 +107,7 @@ server <- function(input, output) {
         tm_shape(name = "Fire Perimeter") +
         tm_polygons(title = "Cause",
                     col = "cause_category",
-                    palette = c("Human" = "#fb8072",
-                                "Natural" = "#a6d854",
-                                "Structure" = "#6e549d",
-                                "Vehicle" = "#80b1d3",
-                                "Other" = "#aaaaaa"),
+                    palette = cause_palette,
                     alpha = 0.8,
                     popup.vars = c("Alarm Date" = "alarm_date",
                                    "Containment Date" = "cont_date",
@@ -248,11 +251,6 @@ server <- function(input, output) {
     reactive({
       shapefiles$subregion %>%
         mutate(
-          fire = terra::extract(fire_raster(),
-                                .,
-                                fun = sum,
-                                na.rm = TRUE) %>%
-            pull(),
           veg = terra::extract(veg_raster(),
                                .,
                                fun = mean,
@@ -267,7 +265,15 @@ server <- function(input, output) {
                                  .,
                                  fun = mean,
                                  na.rm = TRUE) %>%
-            pull())
+            pull()) %>%
+        as_tibble() %>%
+        left_join(
+          fire_dfr_filtered() %>%
+            group_by(
+              subregion_id = as.character(subregion_id),
+              Cause = cause_category) %>%
+            summarise(fire = n()),
+          by = "subregion_id")
     })
   
   # Output part
@@ -313,9 +319,10 @@ server <- function(input, output) {
   output$veg_plot <-
     renderPlot({
       county_ext() %>%
-        ggplot(aes(x = veg, y = fire)) +
+        ggplot(aes(x = veg, y = fire, col = Cause, group = Cause)) +
         geom_point() +
-        geom_smooth(method = "lm") +
+        geom_smooth(method = "lm", se = FALSE) +
+        scale_color_manual(values = cause_palette) +
         labs(x = "Vegetation",
              y = "Fire")
     })
@@ -355,9 +362,10 @@ server <- function(input, output) {
   output$pop_plot <-
     renderPlot({
       county_ext() %>%
-        ggplot(aes(x = pop, y = fire)) +
+        ggplot(aes(x = pop, y = fire, col = Cause, group = Cause)) +
         geom_point() +
-        geom_smooth(method = "lm") +
+        geom_smooth(method = "lm", se = FALSE) +
+        scale_color_manual(values = cause_palette) +
         labs(x = "Population Density",
              y = "Fire")
     })
@@ -371,9 +379,10 @@ server <- function(input, output) {
   output$build_plot <-
     renderPlot({
       county_ext() %>%
-        ggplot(aes(x = build, y = fire)) +
+        ggplot(aes(x = build, y = fire, col = Cause, group = Cause)) +
         geom_point() +
-        geom_smooth(method = "lm") +
+        geom_smooth(method = "lm", se = FALSE) +
+        scale_color_manual(values = cause_palette) +
         labs(x = "Building Density",
              y = "Fire")
     })
