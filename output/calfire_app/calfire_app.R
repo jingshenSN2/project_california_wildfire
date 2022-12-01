@@ -71,6 +71,18 @@ cause_palette <-
     "Vehicle" = "#80b1d3",
     "Other" = "#aaaaaa")
 
+mytheme <-
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(size = 16,
+                                face = "bold"),
+    axis.title.y = element_text(size = 16,
+                                face = "bold"),
+    strip.text = element_text(size = 16,
+                              face = "bold"),
+    panel.grid = element_blank()
+  )
+
 # Server function ---------------------------------------------------------
 
 server <- function(input, output) {
@@ -308,7 +320,8 @@ server <- function(input, output) {
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none")
+        scale_color_manual(values = cause_palette, guide = "none") +
+        mytheme
     })
   
   output$veg_map <-
@@ -328,7 +341,8 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Vegetation",
-             y = "Fire")
+             y = "Fire") +
+        mytheme
     })
   
   output$road <-
@@ -355,7 +369,8 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Road distance [km]",
-             y = "Number of fires")
+             y = "Number of fires") +
+        mytheme
     })
   
   output$pop_map <-
@@ -375,7 +390,8 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Population Density",
-             y = "Fire")
+             y = "Fire") +
+        mytheme
     })
   
   output$build_map <-
@@ -395,7 +411,8 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Building Density",
-             y = "Fire")
+             y = "Fire") +
+        mytheme
     })
   
 }
