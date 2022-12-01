@@ -271,7 +271,7 @@ server <- function(input, output) {
           fire_dfr_filtered() %>%
             group_by(
               subregion_id = as.character(subregion_id),
-              Cause = cause_category) %>%
+              cause = cause_category) %>%
             summarise(fire = n()),
           by = "subregion_id")
     })
@@ -302,12 +302,13 @@ server <- function(input, output) {
         group_by(Year = year(alarm_date),
                  cause_category) %>%
         summarise(Count = n()) %>%
-        ggplot(aes(x = Year, y = Count)) +
+        ggplot(aes(x = Year, y = Count, col = cause_category)) +
         geom_point() +
         geom_smooth(method = "lm") +
         facet_wrap(
           ~ cause_category,
-          scales = "free_y")
+          scales = "free_y") +
+        scale_color_manual(values = cause_palette, guide = "none")
     })
   
   output$veg_map <-
@@ -319,10 +320,13 @@ server <- function(input, output) {
   output$veg_plot <-
     renderPlot({
       county_ext() %>%
-        ggplot(aes(x = veg, y = fire, col = Cause, group = Cause)) +
+        ggplot(aes(x = veg, y = fire, col = cause)) +
         geom_point() +
-        geom_smooth(method = "lm", se = FALSE) +
-        scale_color_manual(values = cause_palette) +
+        geom_smooth(method = "lm") +
+        facet_wrap(
+          ~ cause,
+          scales = "free_y") +
+        scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Vegetation",
              y = "Fire")
     })
@@ -344,11 +348,12 @@ server <- function(input, output) {
       fire_dfr_filtered() %>%
         filter(input$subregion == 0 |
                  subregion_id == input$subregion) %>%
-        ggplot(aes(x = distance_to_road)) +
-        geom_histogram(color = "black", fill = "white", bins = 30) +
+        ggplot(aes(x = distance_to_road, col = cause_category)) +
+        geom_histogram(fill = "white", bins = 30) +
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
+        scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Road distance [km]",
              y = "Number of fires")
     })
@@ -362,10 +367,13 @@ server <- function(input, output) {
   output$pop_plot <-
     renderPlot({
       county_ext() %>%
-        ggplot(aes(x = pop, y = fire, col = Cause, group = Cause)) +
+        ggplot(aes(x = pop, y = fire, col = cause)) +
         geom_point() +
-        geom_smooth(method = "lm", se = FALSE) +
-        scale_color_manual(values = cause_palette) +
+        geom_smooth(method = "lm") +
+        facet_wrap(
+          ~ cause,
+          scales = "free_y") +
+        scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Population Density",
              y = "Fire")
     })
@@ -379,10 +387,13 @@ server <- function(input, output) {
   output$build_plot <-
     renderPlot({
       county_ext() %>%
-        ggplot(aes(x = build, y = fire, col = Cause, group = Cause)) +
+        ggplot(aes(x = build, y = fire, col = cause)) +
         geom_point() +
-        geom_smooth(method = "lm", se = FALSE) +
-        scale_color_manual(values = cause_palette) +
+        geom_smooth(method = "lm") +
+        facet_wrap(
+          ~ cause,
+          scales = "free_y") +
+        scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Building Density",
              y = "Fire")
     })
