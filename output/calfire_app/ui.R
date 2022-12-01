@@ -60,8 +60,10 @@ ui <- dashboardPage(
       tabItem(
         tabName = "intro",
         h2("Introduction"),
-        p(""),
-        tmapOutput("subregion")
+        p("This is a geospital analyisis project about the trend of wildwires and human activity. We picked the state of Califronia as our region of focus since enormous wildfire occured in this region in recent years. In our analysis, We devided california into 9 subregions. Below is a map of showing the boundaries of these subregions."),
+        box(
+          tmapOutput("subregion")
+        )
       ),
       tabItem(
         tabName = "fire_summary",
