@@ -335,7 +335,7 @@ server <- function(input, output) {
         filter(input$subregion == 0 |
                  subregion_id == input$subregion) %>%
         ggplot(aes(x = veg_level, col = cause_category)) +
-        geom_histogram(fill = "white", bins = 30) +
+        geom_histogram(fill = "white", bins = 50) +
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
@@ -378,7 +378,7 @@ server <- function(input, output) {
         filter(input$subregion == 0 |
                  subregion_id == input$subregion) %>%
         ggplot(aes(x = road_distance, col = cause_category)) +
-        geom_histogram(fill = "white", bins = 30) +
+        geom_histogram(fill = "white", bins = 50) +
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
@@ -415,7 +415,7 @@ server <- function(input, output) {
         filter(input$subregion == 0 |
                  subregion_id == input$subregion) %>%
         ggplot(aes(x = pop_density, col = cause_category)) +
-        geom_histogram(fill = "white", bins = 30) +
+        geom_histogram(fill = "white", bins = 50) +
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
@@ -452,7 +452,7 @@ server <- function(input, output) {
         filter(input$subregion == 0 |
                  subregion_id == input$subregion) %>%
         ggplot(aes(x = build_density, col = cause_category)) +
-        geom_histogram(fill = "white", bins = 30) +
+        geom_histogram(fill = "white", bins = 50) +
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
