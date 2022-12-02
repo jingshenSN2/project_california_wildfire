@@ -104,16 +104,22 @@ ui <- dashboardPage(
           Are wildfires more likely to occur in heavy vegetation areas?"),
         p("Plot and map will take some time to display."),
         box(
-          title = "Vegetation on Map",
+          title = "Vegetation v.s. Wildfire on Map",
           status = "primary",
           p("Switch between two layers to see the relationship."),
           tmapOutput("veg_map")
         ),
-        box(
-          title = "Wildfire vs Vegetation",
-          status = "primary",
-          p("Average Vegetation Level vs Number of Wildfires in 9 subregions."),
-          plotOutput("veg_plot")
+        tabBox(
+          tabPanel(
+            title = "Subregion Summary",
+            p("Average Vegetation Level vs Number of Wildfires in 9 subregions."),
+            plotOutput("veg_summary")
+          ),
+          tabPanel(
+            title = "Local Vegetation Level",
+            p("Average Vegetation Level within a wildfire and its 50km surrouding area."),
+            plotOutput("veg_plot")
+          )
         )
       ),
       tabItem(
@@ -123,16 +129,22 @@ ui <- dashboardPage(
           Are wildfires more likely to occur near roads?"),
         p("Plot and map will take some time to display."),
         box(
-          title = "Road on Map",
+          title = "Road v.s. Wildfire on Map",
           status = "primary",
           p("Switch between two layers to see the relationship."),
-          tmapOutput("road")
+          tmapOutput("road_map")
         ),
-        box(
-          title = "Road Distance Histogram",
-          status = "primary",
-          p("Distance from a wildfire to the nearest road."),
-          plotOutput("road_distance")
+        tabBox(
+          tabPanel(
+            title = "Subregion Summary",
+            p("Average Road Length vs Number of Wildfires in 9 subregions."),
+            plotOutput("road_summary")
+          ),
+          tabPanel(
+            title = "Nearest Road Distance",
+            p("Distance from a wildfire to the nearest road."),
+            plotOutput("road_plot")
+          )
         )
       ),
       tabItem(
@@ -141,16 +153,22 @@ ui <- dashboardPage(
         p("Population is a very straighforward sign of human presence. 
           Are wildfires more likely to occur near populated areas?"),
         box(
-          title = "Population on Map",
+          title = "Population v.s. Wildfire on Map",
           status = "primary",
           p("Switch between two layers to see the relationship."),
           tmapOutput("pop_map")
         ),
-        box(
-          title = "Wildfire vs Population",
-          status = "primary",
-          p("Average Population Density vs Number of Wildfires in 9 subregions."),
-          plotOutput("pop_plot")
+        tabBox(
+          tabPanel(
+            title = "Subregion Summary",
+            p("Average Population Density vs Number of Wildfires in 9 subregions."),
+            plotOutput("pop_summary")
+          ),
+          tabPanel(
+            title = "Local Population Density",
+            p("Average Population Densityl within a wildfire and its 50km surrouding area."),
+            plotOutput("pop_plot")
+          )
         )
       ),
       tabItem(
@@ -159,16 +177,22 @@ ui <- dashboardPage(
         p("Buildings are also a very straighforward sign of human presence. 
           Are wildfires more likely to occur near areas of high building density?"),
         box(
-          title = "Building on Map",
+          title = "Building v.s. Wildfire on Map",
           status = "primary",
           p("Switch between two layers to see the relationship."),
           tmapOutput("build_map")
         ),
-        box(
-          title = "Wildfire vs Building",
-          status = "primary",
-          p("Average Building Density vs Number of Wildfires in 9 subregions."),
-          plotOutput("build_plot")
+        tabBox(
+          tabPanel(
+            title = "Subregion Summary",
+            p("Average Building Density vs Number of Wildfires in 9 subregions."),
+            plotOutput("build_summary")
+          ),
+          tabPanel(
+            title = "Local Building Density",
+            p("Average Building Densityl within a wildfire and its 50km surrouding area."),
+            plotOutput("build_plot")
+          )
         )
       )
     )

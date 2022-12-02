@@ -6,9 +6,14 @@ source("scripts/source_plot_data.R")
 
 # Wrangling & Save --------------------------------------------------------
 
+# Rename rasters
+rasters_renamed <-
+  rasters %>%
+  set_names("build", "veg", "fire", "pop")
+
 # Make subregion smaller
 
-subregion <-
+subregion_simplify <-
   cal_subregion %>%
   rename(subregion_name = name) %>%
   st_simplify(dTolerance = 1000)
@@ -23,31 +28,37 @@ road <-
   st_simplify(dTolerance = 100) %>% 
   st_intersection(subregion)
 
-pop <-
-  bind_rows(
-    cal_population_tract_2015 %>%
-      transmute(year = 2015,
-                estimate,
-                land_area,
-                population_density),
-    cal_population_tract_2020 %>%
-      transmute(year = 2020,
-                estimate,
-                land_area,
-                population_density)) %>%
+subregion <-
+  subregion_simplify %>%
+  mutate(veg_level = terra::extract(rasters_renamed$veg,
+                                    .,
+                                    fun = mean,
+                                    na.rm = TRUE) %>%
+           pull() %>%
+           round(4),
+         build_density = terra::extract(rasters_renamed$build,
+                                        .,
+                                        fun = mean,
+                                        na.rm = TRUE) %>%
+           pull() %>%
+           round(4),
+         pop_density = terra::extract(rasters_renamed$pop,
+                                      .,
+                                      fun = mean,
+                                      na.rm = TRUE) %>%
+           pull() %>%
+           round(4)) %>%
+  left_join(road %>%
+              group_by(subregion_id) %>%
+              summarise() %>%
+              mutate(road_length = st_length(.) %>%
+                       units::set_units("km") %>%
+                       as.numeric() %>%
+                       round(1)) %>%
+              as_tibble() %>%
+              select(-geometry),
+            by = "subregion_id")
   
-  # Remove empty polygons
-  
-  filter(!st_is_empty(.)) %>%
-  st_simplify(dTolerance = 100) %>%
-  st_intersection(subregion)
-
-subregion %>%
-  st_write("output/calfire_app/data/subregion.geojson", delete_dsn = TRUE)
-
-cal_counties %>%
-  select(name) %>%
-  st_write("output/calfire_app/data/county.geojson", delete_dsn = TRUE)
 
 # Fire with subregion
 
@@ -59,17 +70,44 @@ fire_with_subregion <-
   st_join(subregion,
           left = FALSE,
           largest=TRUE) %>%
-  st_simplify(dTolerance = 100) %>%
+  st_simplify(dTolerance = 100) %>% 
+  filter(!st_is_empty(.))
+
+fire_with_buffer <-
+  fire_with_subregion %>%
+  terra::vect() %>%
+  terra::buffer(50000)  # 50km
+
+fire <-
+  fire_with_subregion %>%
   mutate(
-    distance_to_road = 
+    road_distance =
       st_distance(.,
                   road %>%
                     st_union()) %>%
       units::set_units("km") %>%
       as.numeric() %>%
-      round(1))
+      round(1),
+    veg_level = terra::extract(rasters$calveg,
+                               fire_with_buffer,
+                               fun = mean,
+                               na.rm = TRUE) %>%
+      pull() %>%
+      round(4),
+    build_density = terra::extract(rasters$cal_building,
+                                   fire_with_buffer,
+                                   fun = mean,
+                                   na.rm = TRUE) %>%
+      pull() %>%
+      round(4),
+    pop_density = terra::extract(rasters$pop,
+                                 fire_with_buffer,
+                                 fun = mean,
+                                 na.rm = TRUE) %>%
+      pull() %>%
+      round(4))
 
-fire_with_subregion %>%
+fire %>%
   as_tibble() %>%
   
   # Since we joined data with subregion, we can use it in our app
@@ -82,9 +120,9 @@ fire_with_subregion %>%
 # Save shapefiles
 
 list(
+  subregion = subregion,
   fire = fire_with_subregion,
-  road = road,
-  pop = pop) %>%
+  road = road) %>%
   iwalk(
     ~ st_write(.x,
                paste0("output/calfire_app/data/", .y, ".geojson"),
@@ -92,8 +130,7 @@ list(
 
 # Save rasters
 
-rasters %>%
-  set_names("build", "veg", "fire", "pop") %>%
+rasters_renamed %>%
   iwalk(
     ~ terra::writeRaster(.x,
                          paste0("output/calfire_app/data/", .y, ".tif"),

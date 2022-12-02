@@ -170,7 +170,6 @@ server <- function(input, output) {
   fire_raster <-
     reactive({
       fire_filtered() %>%
-        filter(!st_is_empty(.)) %>%
         terra::rasterize(rasters$veg,
                          fun = length,
                          sum = TRUE) %>%
@@ -258,27 +257,11 @@ server <- function(input, output) {
                   palette = "Blues")
     })
   
-  # County extraction reactive
+  # Subregion statistics reactive
   
-  county_ext <-
+  subregion_stat <-
     reactive({
       shapefiles$subregion %>%
-        mutate(
-          veg = terra::extract(veg_raster(),
-                               .,
-                               fun = mean,
-                               na.rm = TRUE) %>%
-            pull(),
-          pop = terra::extract(pop_raster(),
-                               .,
-                               fun = mean,
-                               na.rm = TRUE) %>%
-            pull(),
-          build = terra::extract(build_raster(),
-                                 .,
-                                 fun = mean,
-                                 na.rm = TRUE) %>%
-            pull()) %>%
         as_tibble() %>%
         left_join(
           fire_dfr_filtered() %>%
@@ -331,10 +314,10 @@ server <- function(input, output) {
         fire_map()
     })
   
-  output$veg_plot <-
+  output$veg_summary <-
     renderPlot({
-      county_ext() %>%
-        ggplot(aes(x = veg, y = fire, col = cause)) +
+      subregion_stat() %>%
+        ggplot(aes(x = veg_level, y = fire, col = cause)) +
         geom_point() +
         geom_smooth(method = "lm") +
         facet_wrap(
@@ -346,7 +329,23 @@ server <- function(input, output) {
         mytheme
     })
   
-  output$road <-
+  output$veg_plot <-
+    renderPlot({
+      fire_dfr_filtered() %>%
+        filter(input$subregion == 0 |
+                 subregion_id == input$subregion) %>%
+        ggplot(aes(x = veg_level, col = cause_category)) +
+        geom_histogram(fill = "white", bins = 30) +
+        facet_wrap(
+          ~ cause_category,
+          scales = "free_y") +
+        scale_color_manual(values = cause_palette, guide = "none") +
+        labs(x = "Local Vegetation Level",
+             y = "Number of fires") +
+        mytheme
+    })
+  
+  output$road_map <-
     renderTmap({
       fire_map() +
         road() %>%
@@ -358,12 +357,27 @@ server <- function(input, output) {
                              "railway" = "#984ea3"))
     })
   
-  output$road_distance <-
+  output$road_summary <-
+    renderPlot({
+      subregion_stat() %>%
+        ggplot(aes(x = road_length, y = fire, col = cause)) +
+        geom_point() +
+        geom_smooth(method = "lm") +
+        facet_wrap(
+          ~ cause,
+          scales = "free_y") +
+        scale_color_manual(values = cause_palette, guide = "none") +
+        labs(x = "Road Length [km]",
+             y = "Fire") +
+        mytheme
+    })
+  
+  output$road_plot <-
     renderPlot({
       fire_dfr_filtered() %>%
         filter(input$subregion == 0 |
                  subregion_id == input$subregion) %>%
-        ggplot(aes(x = distance_to_road, col = cause_category)) +
+        ggplot(aes(x = road_distance, col = cause_category)) +
         geom_histogram(fill = "white", bins = 30) +
         facet_wrap(
           ~ cause_category,
@@ -380,10 +394,10 @@ server <- function(input, output) {
         fire_map()
     })
   
-  output$pop_plot <-
+  output$pop_summary <-
     renderPlot({
-      county_ext() %>%
-        ggplot(aes(x = pop, y = fire, col = cause)) +
+      subregion_stat() %>%
+        ggplot(aes(x = pop_density, y = fire, col = cause)) +
         geom_point() +
         geom_smooth(method = "lm") +
         facet_wrap(
@@ -395,16 +409,32 @@ server <- function(input, output) {
         mytheme
     })
   
+  output$pop_plot <-
+    renderPlot({
+      fire_dfr_filtered() %>%
+        filter(input$subregion == 0 |
+                 subregion_id == input$subregion) %>%
+        ggplot(aes(x = pop_density, col = cause_category)) +
+        geom_histogram(fill = "white", bins = 30) +
+        facet_wrap(
+          ~ cause_category,
+          scales = "free_y") +
+        scale_color_manual(values = cause_palette, guide = "none") +
+        labs(x = "Local Population Density",
+             y = "Number of fires") +
+        mytheme
+    })
+  
   output$build_map <-
     renderTmap({
       build_map() +
         fire_map()
     })
   
-  output$build_plot <-
+  output$build_summary <-
     renderPlot({
-      county_ext() %>%
-        ggplot(aes(x = build, y = fire, col = cause)) +
+      subregion_stat() %>%
+        ggplot(aes(x = build_density, y = fire, col = cause)) +
         geom_point() +
         geom_smooth(method = "lm") +
         facet_wrap(
@@ -413,6 +443,22 @@ server <- function(input, output) {
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Building Density",
              y = "Fire") +
+        mytheme
+    })
+  
+  output$build_plot <-
+    renderPlot({
+      fire_dfr_filtered() %>%
+        filter(input$subregion == 0 |
+                 subregion_id == input$subregion) %>%
+        ggplot(aes(x = build_density, col = cause_category)) +
+        geom_histogram(fill = "white", bins = 30) +
+        facet_wrap(
+          ~ cause_category,
+          scales = "free_y") +
+        scale_color_manual(values = cause_palette, guide = "none") +
+        labs(x = "Local Building Density",
+             y = "Number of fires") +
         mytheme
     })
   
