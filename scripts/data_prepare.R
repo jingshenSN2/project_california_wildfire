@@ -469,11 +469,11 @@ fire_cause <-
     # `other`: Cause is not easy to classify into any categories above.
     
     category = list(
-      human = c(2, 3, 4, 6, 7, 8, 19),
+      human = c(2, 3, 4, 5, 6, 7, 8, 19),
       natural = c(1, 17, 18),
       vehicle = c(10, 16),
       structure = c(11, 15),
-      other = c(5, 9, 12, 13, 14)))
+      other = c(9, 12, 13, 14)))
 
 saveRDS(fire_cause, "data/processed/fire_cause.rds")
 

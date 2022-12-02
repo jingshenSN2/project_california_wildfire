@@ -26,7 +26,7 @@ road <-
       transmute(type = "railway")) %>%
   group_by(type) %>% summarise() %>%
   st_simplify(dTolerance = 100) %>% 
-  st_intersection(subregion)
+  st_intersection(subregion_simplify)
 
 subregion <-
   subregion_simplify %>%
