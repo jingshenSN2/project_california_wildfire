@@ -182,7 +182,7 @@ server <- function(input, output) {
       fire_raster() %>%
         terra::mask(subregion()) %>%
         tm_shape(name = "Fire") +
-        tm_raster(title = "Number of wildfires",
+        tm_raster(title = "Number of fires",
                   alpha = 0.8,
                   style = "cont",
                   palette = "Reds")
@@ -325,7 +325,7 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Vegetation",
-             y = "Fire") +
+             y = "Number of fires") +
         mytheme
     })
   
@@ -368,7 +368,7 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Road Length [km]",
-             y = "Fire") +
+             y = "Number of fires") +
         mytheme
     })
   
@@ -405,7 +405,7 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Population Density",
-             y = "Fire") +
+             y = "Number of fires") +
         mytheme
     })
   
@@ -442,7 +442,7 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Building Density",
-             y = "Fire") +
+             y = "Number of fires") +
         mytheme
     })
   
