@@ -86,4 +86,17 @@ fire_with_cause %>%
   road %>% 
   tm_shape(name = "Highway and railways") +
   tm_lines(col = "type",
-           title.col = "Road type")
+           title.col = "Road type") +
+  
+  tm_shape(urban,
+           name = 'Urban areas') +
+  tm_polygons()
+
+
+
+urban <- 
+  st_read('data/raw/shapefiles/BND_Adjusted_Urban_Area.shp') %>% 
+  st_transform(crs = 4326) %>% 
+  st_make_valid()
+
+
