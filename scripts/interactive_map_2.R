@@ -14,12 +14,6 @@ source("scripts/source_plot_data.R")
 
 tmap_mode("view")
 
-urban <- 
-  st_read('data/raw/shapefiles/BND_Adjusted_Urban_Area.shp') %>% 
-  st_transform(crs = 4326) %>% 
-  st_make_valid() %>% 
-  select(OBJECTID, NAME10)
-
 
 # fire trend and population -----------------------------------------------
 
@@ -94,11 +88,7 @@ fire_with_cause %>%
   tm_lines(col = "type",
            title.col = "Road type") +
   
-  tm_shape(urban,
-           name = 'Urban areas') +
+  cal_urban %>%
+  tm_shape(name = "Urban areas") +
   tm_polygons(alpha = 0.6,
-              palette = '#B1D4E0')
-
-
-
-
+              palette = "#B1D4E0")

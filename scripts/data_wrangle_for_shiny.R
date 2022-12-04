@@ -16,7 +16,11 @@ rasters_renamed <-
 subregion_simplify <-
   cal_subregion %>%
   rename(subregion_name = name) %>%
-  st_simplify(dTolerance = 1000)
+  st_simplify(dTolerance = 1000) %>%
+  mutate(subregion_area = st_area(.) %>%
+           units::set_units("km^2") %>%
+           as.numeric() %>%
+           round(3))
 
 road <-
   bind_rows(
@@ -26,6 +30,10 @@ road <-
       transmute(type = "railway")) %>%
   group_by(type) %>% summarise() %>%
   st_simplify(dTolerance = 100) %>% 
+  st_intersection(subregion_simplify)
+
+urban <-
+  cal_urban %>% 
   st_intersection(subregion_simplify)
 
 subregion <-
@@ -51,14 +59,26 @@ subregion <-
   left_join(road %>%
               group_by(subregion_id) %>%
               summarise() %>%
-              mutate(road_length = st_length(.) %>%
+              mutate(road_density = st_length(.) %>%
                        units::set_units("km") %>%
                        as.numeric() %>%
                        round(1)) %>%
               as_tibble() %>%
               select(-geometry),
-            by = "subregion_id")
-  
+            by = "subregion_id") %>%
+  left_join(urban %>%
+              group_by(subregion_id) %>%
+              summarise() %>%
+              mutate(urban_density = st_area(.) %>%
+                       units::set_units("km^2") %>%
+                       as.numeric() %>%
+                       round(1)) %>%
+              as_tibble() %>%
+              select(-geometry),
+            by = "subregion_id") %>%
+  mutate(road_density = road_density / subregion_area,
+         urban_density = urban_density / subregion_area)
+
 
 # Fire with subregion
 
@@ -67,9 +87,9 @@ fire_with_subregion <-
   
   # With largest=TRUE, this line can take 5+ min to run
   
-  st_join(subregion,
+  st_join(subregion_simplify,
           left = FALSE,
-          largest=TRUE) %>%
+          largest = TRUE) %>%
   st_simplify(dTolerance = 100) %>% 
   filter(!st_is_empty(.))
 
@@ -84,6 +104,13 @@ fire <-
     road_distance =
       st_distance(.,
                   road %>%
+                    st_union()) %>%
+      units::set_units("km") %>%
+      as.numeric() %>%
+      round(1),
+    urban_distance =
+      st_distance(.,
+                  cal_urban %>%
                     st_union()) %>%
       units::set_units("km") %>%
       as.numeric() %>%
@@ -122,7 +149,8 @@ fire %>%
 list(
   subregion = subregion,
   fire = fire_with_subregion,
-  road = road) %>%
+  road = road,
+  urban = urban) %>%
   iwalk(
     ~ st_write(.x,
                paste0("output/calfire_app/data/", .y, ".geojson"),

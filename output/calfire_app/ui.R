@@ -14,10 +14,17 @@ ui <- dashboardPage(
       menuItem("Introduction", tabName = "intro", icon = icon("clipboard")),
       menuItem("Wildfire Summary", tabName = "fire_summary", icon = icon("table")),
       menuItem("Wildfires Visualization", tabName = "fire_viz", icon = icon("fire")),
-      menuItem("Vegetation", tabName = "veg", icon = icon("tree")),
-      menuItem("Road", tabName = "road", icon = icon("road")),
-      menuItem("Population", tabName = "pop", icon = icon("users")),
-      menuItem("Building", tabName = "build", icon = icon("city"))
+      menuItem("Nature Factor",
+               tabName = "nature_factor",
+               icon = icon("mountain"),
+               menuItem("Vegetation", tabName = "veg", icon = icon("tree"))),
+      menuItem("Human Factor",
+               tabName = "human_factor",
+               icon = icon("tree"),
+               menuItem("Road", tabName = "road", icon = icon("road")),
+               menuItem("Urban Area", tabName = "urban", icon = icon("city")),
+               menuItem("Population", tabName = "pop", icon = icon("users")),
+               menuItem("Building", tabName = "build", icon = icon("house")))
     ),
     dateRangeInput(
       "date",
@@ -137,13 +144,38 @@ ui <- dashboardPage(
         tabBox(
           tabPanel(
             title = "Subregion Summary",
-            p("Average Road Length vs Number of Wildfires in 9 subregions."),
+            p("Road Length vs Number of Wildfires in 9 subregions."),
             plotOutput("road_summary")
           ),
           tabPanel(
             title = "Nearest Road Distance",
             p("Distance from a wildfire to the nearest road."),
             plotOutput("road_plot")
+          )
+        )
+      ),
+      tabItem(
+        tabName = "urban",
+        h2("Urban Area"),
+        p("Urban area can be a sign of human presence/activity. 
+          Are wildfires more likely to occur near urban area?"),
+        p("Plot and map will take some time to display."),
+        box(
+          title = "Urban Area v.s. Wildfire on Map",
+          status = "primary",
+          p("Switch between two layers to see the relationship."),
+          tmapOutput("urban_map")
+        ),
+        tabBox(
+          tabPanel(
+            title = "Subregion Summary",
+            p("Urban Area vs Number of Wildfires in 9 subregions."),
+            plotOutput("urban_summary")
+          ),
+          tabPanel(
+            title = "Nearest Urban Area",
+            p("Distance from a wildfire to the nearest urban area."),
+            plotOutput("urban_plot")
           )
         )
       ),

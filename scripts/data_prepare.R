@@ -26,7 +26,8 @@ urls <-
     building = "https://usbuildingdata.blob.core.windows.net/usbuildings-v2/California.geojson.zip",
     county = "https://data.ca.gov/dataset/e212e397-1277-4df3-8c22-40721b095f33/resource/b0007416-a325-4777-9295-368ea6b710e6/download/ca-county-boundaries.zip",
     highway = "https://opendata.arcgis.com/api/v3/datasets/1f71fa512e824ff09d4b9c3f48b6d602_0/downloads/data?format=geojson&spatialRefId=4326&where=1%3D1",
-    railway = "https://opendata.arcgis.com/api/v3/datasets/2ac93358aca84aa7b547b29a42d5ff52_0/downloads/data?format=geojson&spatialRefId=4326&where=1%3D1")
+    railway = "https://opendata.arcgis.com/api/v3/datasets/2ac93358aca84aa7b547b29a42d5ff52_0/downloads/data?format=geojson&spatialRefId=4326&where=1%3D1",
+    urban = "https://stacks.stanford.edu/file/druid:jt346pj7452/data.zip")
 
 # Filenames
 
@@ -36,7 +37,8 @@ filenames <-
     building = "cal_building.zip",
     county = "cal_counties.zip",
     highway = "cal_highway.geojson",
-    railway = "cal_railway.geojson") %>%
+    railway = "cal_railway.geojson",
+    urban = "cal_urban.zip") %>%
   map(
     ~paste0("data/raw/shapefiles/", .x))
 
@@ -284,6 +286,29 @@ cal_railway %>%
 
 rm(cal_highway, cal_railway)
 
+
+# California Urban Area ---------------------------------------------------
+
+cal_urban <-
+  st_read("data/raw/shapefiles/cal_urban") %>%
+  st_make_valid() %>%
+  st_transform(4326) %>%
+  set_names(
+    tolower(
+      names(.))) %>%
+  transmute(urban_name = name10,
+            urban_type = uatyp10)
+
+# Save shapefile
+
+cal_urban %>%
+  st_write(
+    dsn = "data/processed/cal_urban.geojson",
+    delete_dsn = TRUE)
+
+# Release memory
+
+rm(cal_urban)
 
 # California Vegetation ---------------------------------------------------
 

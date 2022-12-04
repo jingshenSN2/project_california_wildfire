@@ -6,6 +6,7 @@ library(shinydashboard)
 library(lubridate)
 library(tmap)
 library(sf)
+library(units)
 library(tidyverse)
 
 
@@ -217,6 +218,15 @@ server <- function(input, output) {
                  subregion_id == input$subregion)
     })
   
+  # Urban reactive
+  
+  urban <-
+    reactive({
+      shapefiles$urban %>%
+        filter(input$subregion == 0 |
+                 subregion_id == input$subregion)
+    })
+  
   # Population raster reactive
   
   pop_raster <-
@@ -269,7 +279,8 @@ server <- function(input, output) {
               subregion_id = as.character(subregion_id),
               cause = cause_category) %>%
             summarise(fire = n()),
-          by = "subregion_id")
+          by = "subregion_id") %>%
+        mutate(fire = fire / subregion_area)
     })
   
   # Output part
@@ -325,7 +336,7 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Vegetation",
-             y = "Number of fires") +
+             y = expression(bold("Fires per km"^2))) +
         mytheme
     })
   
@@ -360,15 +371,15 @@ server <- function(input, output) {
   output$road_summary <-
     renderPlot({
       subregion_stat() %>%
-        ggplot(aes(x = road_length, y = fire, col = cause)) +
+        ggplot(aes(x = road_density, y = fire, col = cause)) +
         geom_point() +
         geom_smooth(method = "lm") +
         facet_wrap(
           ~ cause,
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
-        labs(x = "Road Length [km]",
-             y = "Number of fires") +
+        labs(x = expression(bold(Road~Density*~group('[',`km`/`km`^2,']'))),
+             y = expression(bold("Fires per km"^2))) +
         mytheme
     })
   
@@ -384,6 +395,46 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Road distance [km]",
+             y = "Number of fires") +
+        mytheme
+    })
+  
+  output$urban_map <-
+    renderTmap({
+      fire_map() +
+        urban() %>%
+        tm_shape(name = "Urban Area") +
+        tm_polygons(alpha = 0.8,
+                 col = "#b595c4")
+    })
+  
+  output$urban_summary <-
+    renderPlot({
+      subregion_stat() %>%
+        ggplot(aes(x = urban_density, y = fire, col = cause)) +
+        geom_point() +
+        geom_smooth(method = "lm") +
+        facet_wrap(
+          ~ cause,
+          scales = "free_y") +
+        scale_color_manual(values = cause_palette, guide = "none") +
+        labs(x = "Proportion of Urban Area",
+             y = expression(bold("Fires per km"^2))) +
+        mytheme
+    })
+  
+  output$urban_plot <-
+    renderPlot({
+      fire_dfr_filtered() %>%
+        filter(input$subregion == 0 |
+                 subregion_id == input$subregion) %>%
+        ggplot(aes(x = urban_distance, col = cause_category)) +
+        geom_histogram(fill = "white", bins = 50) +
+        facet_wrap(
+          ~ cause_category,
+          scales = "free_y") +
+        scale_color_manual(values = cause_palette, guide = "none") +
+        labs(x = "Urban distance [km]",
              y = "Number of fires") +
         mytheme
     })
@@ -405,7 +456,7 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Population Density",
-             y = "Number of fires") +
+             y = expression(bold("Fires per km"^2))) +
         mytheme
     })
   
@@ -442,7 +493,7 @@ server <- function(input, output) {
           scales = "free_y") +
         scale_color_manual(values = cause_palette, guide = "none") +
         labs(x = "Building Density",
-             y = "Number of fires") +
+             y = expression(bold("Fires per km"^2))) +
         mytheme
     })
   
