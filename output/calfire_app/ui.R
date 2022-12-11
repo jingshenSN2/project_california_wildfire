@@ -86,6 +86,10 @@ ui <- dashboardPage(
     tabItems(
       tabItem(
         tabName = "intro",
+        h1("Wildfires: Human Activity and Natural Facotr"),
+        p(HTML("A case study of wildfire records in California during 1980-2020
+               <br/>by Jingsong Gao & Haiwen Lei"),
+          style = "font-size:18px"),
         h2("Introduction"),
         p("This is a geospatial analysis project about the trend of wildfires
           and human activities. We picked the state of California as our region

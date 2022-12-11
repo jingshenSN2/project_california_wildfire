@@ -488,7 +488,8 @@ server <- function(input, output) {
                  col = "type",
                  alpha = 0.8,
                  palette = c("highway" = "#377eb8",
-                             "railway" = "#984ea3"))
+                             "railway" = "#984ea3"),
+                 popup.vars = c('Type' = 'type'))
     })
   
   output$road_summary <-
@@ -534,7 +535,10 @@ server <- function(input, output) {
         urban() %>%
         tm_shape(name = "Urban Area") +
         tm_polygons(alpha = 0.8,
-                    col = "#b595c4")
+                    col = "#b595c4",
+                    popup.vars = c('Name' = 'urban_name',
+                                   'Subregion id' = 'subregion_id',
+                                   'Subregion' = 'subregion_name'))
     })
   
   output$urban_summary <-
