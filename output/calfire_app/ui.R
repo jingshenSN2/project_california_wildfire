@@ -108,9 +108,7 @@ ui <- dashboardPage(
           and the human factor and nature factor (level of vegetation)."),
         p("In our analysis, we divided California into 9 subregions.
           Below is a map showing the boundaries of these subregions."),
-        box(
-          plotOutput("subregion")
-        )
+        plotOutput("subregion")
       ),
       tabItem(
         tabName = "fire_summary",
@@ -142,18 +140,18 @@ ui <- dashboardPage(
           status = "primary",
           p(
             HTML(
-            'Data Source:<br/> California Department of Forestry 
+              'Data Source:<br/> California Department of Forestry 
             and Fire Protection, Fire and Resource Assessment Program (FRAP)'),
-          style = "font-size:10px")
+            style = "font-size:10px")
         ),
         box(
           plotOutput('map2'),
           status = "primary",
           p(
             HTML(
-            'Data Source:<br/> California Department of Forestry and 
+              'Data Source:<br/> California Department of Forestry and 
             Fire Protection,  Fire and Resource Assessment Program (FRAP)'),
-          style = "font-size:10px")
+            style = "font-size:10px")
         ),
       ),
       tabItem(
@@ -171,9 +169,9 @@ ui <- dashboardPage(
           tmapOutput("large_fire"),
           p(
             HTML(
-            'Data Source:<br/> California Department of Forestry 
+              'Data Source:<br/> California Department of Forestry 
             and Fire Protection, Fire and Resource Assessment Program (FRAP)'),
-          style = "font-size:10px")
+            style = "font-size:10px")
         ),
         box(
           title = "Wildfire Plot by Year",
@@ -201,7 +199,7 @@ ui <- dashboardPage(
                  Forestry and Fire Protection, Fire and Resource 
                  Assessment Program (FRAP) 
            <br/> 2. USDA:Forest services Calveg'),
-          style = "font-size:10px")
+           style = "font-size:10px")
         ),
         tabBox(
           tabPanel(
@@ -234,7 +232,7 @@ ui <- dashboardPage(
                  of Forestry and Fire Protection, Fire and Resource 
                  Assessment Program (FRAP) 
            <br/> 2. Caltrans Gis Data'),
-          style = "font-size:10px")
+           style = "font-size:10px")
         ),
         tabBox(
           tabPanel(

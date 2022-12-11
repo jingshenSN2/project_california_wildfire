@@ -96,8 +96,7 @@ subregion_map <-
   shapefiles$subregion %>%
   tm_shape(name = "Subregion") +
   tm_polygons(title = "Subregion Name",
-              col = "subregion_name",
-              popup.vars = c("Subregion Name" = "subregion_name")) +
+              col = "subregion_name") +
   tm_layout(
     frame = '#999999',
     legend.outside = TRUE,
