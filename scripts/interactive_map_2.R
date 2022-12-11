@@ -34,8 +34,8 @@ road <-
     cal_railway %>%
       transmute(type = "railway"))
 
-
-fire_with_cause %>%
+map <- 
+  fire_with_cause %>%
   filter(
     year(alarm_date) %in% five_years$first_10_15,
     gis_acres >= area_range$min,
@@ -92,3 +92,7 @@ fire_with_cause %>%
   tm_shape(name = "Urban areas") +
   tm_polygons(alpha = 0.6,
               palette = "#B1D4E0")
+
+map %>% 
+  tmap_leaflet() %>%
+  leaflet::hideGroup("rasters$pop$pop_density_2015")

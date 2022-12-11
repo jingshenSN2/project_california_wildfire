@@ -36,6 +36,36 @@ shapefiles <-
   set_names(
     str_remove(shapefile_paths, ".geojson"))
 
+fire_by_county <- 
+  shapefiles$fire %>%
+  
+  # Spatial join with county
+  
+  st_join(shapefiles$cal_counties %>%
+            select(geoid)) %>%
+  
+  # Group by geoid
+  
+  as_tibble() %>%
+  group_by(geoid) %>%
+  
+  # Count and area
+  
+  summarise(
+    n = n(),
+    area = sum(gis_acres)) %>%
+  
+  # join back countries boundaries
+  
+  left_join(shapefiles$cal_counties,
+            .,
+            by = 'geoid') %>% 
+  
+  # replace NA
+  
+  replace_na(
+    list(n = 0, area = 0))
+
 rasters_paths <-
   list.files(
     "data",
@@ -59,12 +89,49 @@ source("ui.R")
 
 # Plot outside server -----------------------------------------------------
 
+# plot the subregion map in intro page 
+
+
 subregion_map <-
   shapefiles$subregion %>%
   tm_shape(name = "Subregion") +
   tm_polygons(title = "Subregion Name",
               col = "subregion_name",
-              popup.vars = c("Subregion Name" = "subregion_name"))
+              popup.vars = c("Subregion Name" = "subregion_name")) +
+  tm_layout(
+    frame = '#999999',
+    legend.outside = TRUE,
+    legend.title.size = 1.5,
+    legend.text.size = 0.87)
+
+# two static map in wildfire visualization tap
+
+map1 <-
+  tm_shape(fire_by_county) +
+  tm_polygons(title = "Number of wildfires",
+              col = "n",
+              style = "cont") +
+  
+  # change layout
+  
+  tm_layout(
+    main.title = 'Wildfire occurances',
+    frame = FALSE,
+    legend.outside = TRUE)
+
+map2 <-
+  tm_shape(fire_by_county) +
+  tm_polygons(title = "Total burned area [acres]",
+              col = "area",
+              style = "cont") +
+  
+  tm_layout(
+    main.title = 'Burned areas',
+    frame = FALSE,
+    legend.outside = TRUE,
+    attr.outside=TRUE)
+
+# create a palette for fire causes 
 
 cause_palette <-
   c("Human" = "#fb8072",
@@ -72,6 +139,8 @@ cause_palette <-
     "Structure" = "#6e549d",
     "Vehicle" = "#80b1d3",
     "Other" = "#aaaaaa")
+
+# create customized theme for visulization
 
 mytheme <-
   theme_minimal() +
@@ -127,7 +196,7 @@ server <- function(input, output) {
                                    "Containment Date" = "cont_date",
                                    "Burned Area [acres]" = "gis_acres",
                                    "Cause Category" = "cause_category",
-                                   "Cause" = "cause_name"))
+                                   "Cause" = "cause_name")) 
     })
   
   # Fire dataframe reactive
@@ -236,15 +305,48 @@ server <- function(input, output) {
         replace(. == 0, NA)
     })
   
+  pop_raster_2015 <-
+    reactive({
+      rasters$pop$pop_density_2015 %>%
+        terra::aggregate(2^input$agg, na.rm=TRUE) %>%
+        replace(. == 0, NA)
+    })
+  
+  pop_raster_2010 <-
+    reactive({
+      rasters$pop$pop_density_2010 %>%
+        terra::aggregate(2^input$agg, na.rm=TRUE) %>%
+        replace(. == 0, NA)
+    })
+  
+  # population map reactive 
+  
   pop_map <-
     reactive({
       pop_raster() %>%
         terra::mask(subregion()) %>%
-        tm_shape(name = "Population") +
-        tm_raster(title = "Population Density",
+        tm_shape(name = "Population in 2020") +
+        tm_raster(title = "Population Density in 2020(km^2)",
                   alpha = 0.8,
                   style = "cont",
-                  palette = "Blues")
+                  palette = "Blues") +
+        
+        pop_raster_2015() %>%
+        terra::mask(subregion()) %>%
+        tm_shape(name = "Population in 2015") +
+        tm_raster(title = "Population Density in 2015(per km^2)",
+                  alpha = 0.8,
+                  style = "cont",
+                  palette = "Blues") +
+        
+        pop_raster_2010() %>%
+        terra::mask(subregion()) %>%
+        tm_shape(name = "Population in 2010") +
+        tm_raster(title = "Population Density in 2010(per km^2)",
+                  alpha = 0.8,
+                  style = "cont",
+                  palette = "Blues") 
+      
     })
   
   # Building raster reactive
@@ -286,8 +388,18 @@ server <- function(input, output) {
   # Output part
   
   output$subregion <-
-    renderTmap({
+    renderPlot({ 
       subregion_map
+    })
+  
+  output$map1 <-
+    renderPlot({ 
+      map1
+    })
+  
+  output$map2 <-
+    renderPlot({ 
+      map2
     })
   
   output$summary <-
@@ -309,13 +421,18 @@ server <- function(input, output) {
         group_by(Year = year(alarm_date),
                  cause_category) %>%
         summarise(Count = n()) %>%
-        ggplot(aes(x = Year, y = Count, col = cause_category)) +
+        ggplot(
+          aes(x = Year,
+              y = Count,
+              col = cause_category)) +
         geom_point() +
         geom_smooth(method = "lm") +
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none") +
+        scale_color_manual(
+          values = cause_palette,
+          guide = "none") +
         mytheme
     })
   
@@ -328,13 +445,17 @@ server <- function(input, output) {
   output$veg_summary <-
     renderPlot({
       subregion_stat() %>%
-        ggplot(aes(x = veg_level, y = fire, col = cause)) +
+        ggplot(
+          aes(x = veg_level,
+              y = fire, col = cause)) +
         geom_point() +
         geom_smooth(method = "lm") +
         facet_wrap(
           ~ cause,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none") +
+        scale_color_manual(
+          values = cause_palette,
+          guide = "none") +
         labs(x = "Vegetation",
              y = expression(bold("Fires per km"^2))) +
         mytheme
@@ -350,7 +471,9 @@ server <- function(input, output) {
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none") +
+        scale_color_manual(
+          values = cause_palette,
+          guide = "none") +
         labs(x = "Local Vegetation Level",
              y = "Number of fires") +
         mytheme
@@ -371,13 +494,17 @@ server <- function(input, output) {
   output$road_summary <-
     renderPlot({
       subregion_stat() %>%
-        ggplot(aes(x = road_density, y = fire, col = cause)) +
+        ggplot(
+          aes(x = road_density,
+              y = fire, col = cause)) +
         geom_point() +
         geom_smooth(method = "lm") +
         facet_wrap(
           ~ cause,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none") +
+        scale_color_manual(
+          values = cause_palette,
+          guide = "none") +
         labs(x = expression(bold(Road~Density*~group('[',`km`/`km`^2,']'))),
              y = expression(bold("Fires per km"^2))) +
         mytheme
@@ -393,7 +520,9 @@ server <- function(input, output) {
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none") +
+        scale_color_manual(
+          values = cause_palette,
+          guide = "none") +
         labs(x = "Road distance [km]",
              y = "Number of fires") +
         mytheme
@@ -405,19 +534,23 @@ server <- function(input, output) {
         urban() %>%
         tm_shape(name = "Urban Area") +
         tm_polygons(alpha = 0.8,
-                 col = "#b595c4")
+                    col = "#b595c4")
     })
   
   output$urban_summary <-
     renderPlot({
       subregion_stat() %>%
-        ggplot(aes(x = urban_density, y = fire, col = cause)) +
+        ggplot(
+          aes(x = urban_density,
+              y = fire, col = cause)) +
         geom_point() +
         geom_smooth(method = "lm") +
         facet_wrap(
           ~ cause,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none") +
+        scale_color_manual(
+          values = cause_palette,
+          guide = "none") +
         labs(x = "Proportion of Urban Area",
              y = expression(bold("Fires per km"^2))) +
         mytheme
@@ -428,12 +561,16 @@ server <- function(input, output) {
       fire_dfr_filtered() %>%
         filter(input$subregion == 0 |
                  subregion_id == input$subregion) %>%
-        ggplot(aes(x = urban_distance, col = cause_category)) +
+        ggplot(
+          aes(x = urban_distance,
+              col = cause_category)) +
         geom_histogram(fill = "white", bins = 50) +
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none") +
+        scale_color_manual(
+          values = cause_palette,
+          guide = "none") +
         labs(x = "Urban distance [km]",
              y = "Number of fires") +
         mytheme
@@ -448,14 +585,18 @@ server <- function(input, output) {
   output$pop_summary <-
     renderPlot({
       subregion_stat() %>%
-        ggplot(aes(x = pop_density, y = fire, col = cause)) +
+        ggplot(
+          aes(x = pop_density,
+              y = fire, col = cause)) +
         geom_point() +
         geom_smooth(method = "lm") +
         facet_wrap(
           ~ cause,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none") +
-        labs(x = "Population Density",
+        scale_color_manual(
+          values = cause_palette,
+          guide = "none") +
+        labs(x = "Population Density in 2020",
              y = expression(bold("Fires per km"^2))) +
         mytheme
     })
@@ -465,12 +606,16 @@ server <- function(input, output) {
       fire_dfr_filtered() %>%
         filter(input$subregion == 0 |
                  subregion_id == input$subregion) %>%
-        ggplot(aes(x = pop_density, col = cause_category)) +
+        ggplot(
+          aes(x = pop_density,
+              col = cause_category)) +
         geom_histogram(fill = "white", bins = 50) +
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none") +
+        scale_color_manual(
+          values = cause_palette,
+          guide = "none") +
         labs(x = "Local Population Density",
              y = "Number of fires") +
         mytheme
@@ -485,13 +630,17 @@ server <- function(input, output) {
   output$build_summary <-
     renderPlot({
       subregion_stat() %>%
-        ggplot(aes(x = build_density, y = fire, col = cause)) +
+        ggplot(
+          aes(x = build_density,
+              y = fire, col = cause)) +
         geom_point() +
         geom_smooth(method = "lm") +
         facet_wrap(
           ~ cause,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none") +
+        scale_color_manual(
+          values = cause_palette,
+          guide = "none") +
         labs(x = "Building Density",
              y = expression(bold("Fires per km"^2))) +
         mytheme
@@ -502,12 +651,16 @@ server <- function(input, output) {
       fire_dfr_filtered() %>%
         filter(input$subregion == 0 |
                  subregion_id == input$subregion) %>%
-        ggplot(aes(x = build_density, col = cause_category)) +
+        ggplot(
+          aes(x = build_density,
+              col = cause_category)) +
         geom_histogram(fill = "white", bins = 50) +
         facet_wrap(
           ~ cause_category,
           scales = "free_y") +
-        scale_color_manual(values = cause_palette, guide = "none") +
+        scale_color_manual(
+          values = cause_palette,
+          guide = "none") +
         labs(x = "Local Building Density",
              y = "Number of fires") +
         mytheme

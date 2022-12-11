@@ -86,10 +86,14 @@ rasters$pop <-
     terra::rasterize(cal_population_tract_2020 %>%
                        filter(!st_is_empty(.)),
                      rasters$calveg,
+                     "population_density"),
+    terra::rasterize(cal_population_tract_2010 %>%
+                       filter(!st_is_empty(.)),
+                     rasters$calveg,
                      "population_density"))
 
 terra::set.names(rasters$pop,
-                 c("pop_density_2015", "pop_density_2020"))
+                 c("pop_density_2015", "pop_density_2020", "pop_density_2010"))
 
 cal_outline <-
   cal_counties %>%

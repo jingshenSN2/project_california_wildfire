@@ -50,7 +50,7 @@ subregion <-
                                         na.rm = TRUE) %>%
            pull() %>%
            round(4),
-         pop_density = terra::extract(rasters_renamed$pop,
+         pop_density = terra::extract(rasters_renamed$pop$pop_density_2020,
                                       .,
                                       fun = mean,
                                       na.rm = TRUE) %>%
@@ -127,7 +127,7 @@ fire <-
                                    na.rm = TRUE) %>%
       pull() %>%
       round(4),
-    pop_density = terra::extract(rasters$pop,
+    pop_density = terra::extract(rasters$pop$pop_density_2020,
                                  fire_with_buffer,
                                  fun = mean,
                                  na.rm = TRUE) %>%

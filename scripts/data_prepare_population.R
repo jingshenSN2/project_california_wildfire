@@ -126,6 +126,29 @@ acs_population_2010_2015 <-
   
   mutate(population_density = estimate/land_area)
 
+
+# 2006 - 2010 ACS data 
+
+acs_population_2010 <-
+  tidycensus::get_acs(
+    geography = 'tract',
+    variables = 'B01003_001',
+    year = 2010,
+    state = '06', # 06 represent CA
+    survey = 'acs5',
+    geometry = TRUE) %>% 
+  st_make_valid() %>% 
+  
+  # caculate land area 
+  
+  mutate(land_area = 
+           st_area(.) %>% 
+           units::set_units('km^2')) %>% 
+  
+  # caculate population density 
+  
+  mutate(population_density = estimate/land_area)
+
 # creating map
 
 tmap_mode('view')
@@ -256,6 +279,18 @@ acs_population_2010_2015 %>%
   
   st_write(
     dsn = "data/processed/cal_population_tract_2015.geojson",
+    delete_dsn = TRUE)
+
+acs_population_2010 %>%
+  
+  # Transform the CRS
+  
+  st_transform(4326) %>%
+  
+  # Write to disk
+  
+  st_write(
+    dsn = "data/processed/cal_population_tract_2010.geojson",
     delete_dsn = TRUE)
 
 # Release memory

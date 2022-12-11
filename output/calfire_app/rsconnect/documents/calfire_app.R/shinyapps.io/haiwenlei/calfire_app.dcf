@@ -1,0 +1,13 @@
+name: calfire_app
+title: calfire_app
+username:
+account: haiwenlei
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7865967
+bundleId: 6622101
+url: https://haiwenlei.shinyapps.io/calfire_app/
+when: 1670734665.64769
+lastSyncTime: 1670734665.6477
+asMultiple: FALSE
+asStatic: FALSE
